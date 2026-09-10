@@ -22,6 +22,10 @@ import {
   X
 } from "lucide-react";
 
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
 const NAV_ITEMS = [
   { name: "Dashboard", icon: Home },
   { name: "Game Predictions", icon: Gamepad2 },
@@ -35,43 +39,21 @@ const NAV_ITEMS = [
   { name: "Settings", icon: Settings }
 ];
 
-/*
-  SAMPLE / DEMO DATA ONLY
+/* =========================================================
+   SAMPLE DATA
 
-  This will eventually be replaced by data coming from the
-  Banana Bets Google Sheets / Apps Script API.
+   IMPORTANT:
+   This is temporary presentation data only.
 
-  Do not treat these numbers as live model predictions.
-*/
+   Eventually these values will come from the Banana Bets
+   Google Sheets / Apps Script API.
+
+   Do not treat these as live betting recommendations.
+   ========================================================= */
+
 const GAMES = [
   {
     date: "Thu 9/10",
-    away: "DAL",
-    home: "PHI",
-    spread: "PHI -6.5",
-    total: "47.5",
-    awayML: "+210",
-    homeML: "-250",
-    probability: 72,
-    edge: 8.1,
-    pick: "PHI -6.5",
-    confidence: "high"
-  },
-  {
-    date: "Sun 9/13",
-    away: "MIA",
-    home: "LV",
-    spread: "LV -2.5",
-    total: "44.0",
-    awayML: "+120",
-    homeML: "-140",
-    probability: 58,
-    edge: 4.3,
-    pick: "LV -2.5",
-    confidence: "medium"
-  },
-  {
-    date: "Sun 9/13",
     away: "SF",
     home: "LA",
     spread: "LA -1.5",
@@ -82,6 +64,19 @@ const GAMES = [
     edge: 2.1,
     pick: "PASS",
     confidence: "low"
+  },
+  {
+    date: "Sun 9/13",
+    away: "MIA",
+    home: "LV",
+    spread: "LV -2.5",
+    total: "44.0",
+    awayML: "+150",
+    homeML: "-170",
+    probability: 61,
+    edge: 8.4,
+    pick: "MIA ML",
+    confidence: "medium"
   },
   {
     date: "Sun 9/13",
@@ -98,22 +93,35 @@ const GAMES = [
   },
   {
     date: "Sun 9/13",
-    away: "KC",
-    home: "DEN",
-    spread: "KC -4.5",
+    away: "CHI",
+    home: "CAR",
+    spread: "CHI -2.5",
+    total: "42.5",
+    awayML: "-140",
+    homeML: "+120",
+    probability: 59,
+    edge: 4.1,
+    pick: "CHI ML",
+    confidence: "medium"
+  },
+  {
+    date: "Sun 9/13",
+    away: "BUF",
+    home: "HOU",
+    spread: "BUF -3.5",
     total: "47.0",
-    awayML: "-200",
-    homeML: "+170",
+    awayML: "-185",
+    homeML: "+160",
     probability: 67,
     edge: 6.9,
-    pick: "KC -4.5",
+    pick: "BUF -3.5",
     confidence: "high"
   },
   {
     date: "Sun 9/13",
-    away: "CIN",
-    home: "TB",
-    spread: "TB -1.0",
+    away: "TB",
+    home: "CIN",
+    spread: "CIN -1.0",
     total: "46.5",
     awayML: "+105",
     homeML: "-125",
@@ -124,46 +132,46 @@ const GAMES = [
   },
   {
     date: "Sun 9/13",
-    away: "ATL",
-    home: "PIT",
-    spread: "PIT -3.5",
+    away: "GB",
+    home: "MIN",
+    spread: "GB -2.0",
     total: "45.0",
-    awayML: "+150",
-    homeML: "-175",
-    probability: 61,
+    awayML: "-130",
+    homeML: "+110",
+    probability: 60,
     edge: 4.9,
-    pick: "PIT -3.5",
+    pick: "GB ML",
     confidence: "medium"
   },
   {
     date: "Mon 9/14",
     away: "DEN",
     home: "KC",
-    spread: "KC -7.0",
+    spread: "KC -4.5",
     total: "48.5",
-    awayML: "+250",
-    homeML: "-300",
-    probability: 74,
-    edge: 9.2,
-    pick: "KC -7.0",
+    awayML: "+180",
+    homeML: "-215",
+    probability: 69,
+    edge: 7.2,
+    pick: "KC -4.5",
     confidence: "high"
   }
 ];
 
 const ANGLES = [
-  ["Back home favorites", "62%"],
-  ["Unders in dome games", "68%"],
-  ["Fade short-rest teams", "71%"],
+  ["Home favorites", "62%"],
   ["Divisional unders", "64%"],
-  ["Elite QB vs weak pass D", "69%"]
+  ["Short-rest fade", "67%"],
+  ["High-volume RB overs", "69%"],
+  ["Elite QB vs weak pass D", "71%"]
 ];
 
 const PROBABILITIES = [
-  ["KC", 74],
-  ["PHI", 72],
-  ["BAL", 67],
-  ["PIT", 63],
-  ["LV", 61]
+  ["KC", 69],
+  ["BUF", 67],
+  ["BAL", 63],
+  ["MIA", 61],
+  ["GB", 60]
 ];
 
 const COMPONENTS = [
@@ -173,6 +181,10 @@ const COMPONENTS = [
   ["Matchup", 20, "red"],
   ["Market", 15, "gray"]
 ];
+
+/* =========================================================
+   SMALL SHARED COMPONENTS
+   ========================================================= */
 
 function BrandDots() {
   return (
@@ -184,6 +196,18 @@ function BrandDots() {
     </div>
   );
 }
+
+function TeamBadge({ team }) {
+  return (
+    <span className="team-badge">
+      {team}
+    </span>
+  );
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
 function Sidebar({
   activePage,
@@ -238,9 +262,7 @@ function Sidebar({
               <button
                 key={item.name}
                 className={`nav-button ${
-                  activePage === item.name
-                    ? "active"
-                    : ""
+                  activePage === item.name ? "active" : ""
                 }`}
                 onClick={() => {
                   setActivePage(item.name);
@@ -249,7 +271,9 @@ function Sidebar({
               >
                 <Icon size={18} />
 
-                <span>{item.name}</span>
+                <span>
+                  {item.name}
+                </span>
 
                 {item.badge && (
                   <span className="nav-badge">
@@ -270,9 +294,9 @@ function Sidebar({
           </div>
 
           <p>
-            NFL MODEL
+            BANANA BETS
             <br />
-            + BETTING ANALYTICS
+            MODEL DASHBOARD
           </p>
         </div>
       </aside>
@@ -286,6 +310,10 @@ function Sidebar({
     </>
   );
 }
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
 
 function Topbar({
   season,
@@ -301,7 +329,7 @@ function Topbar({
         onClick={() => setMobileOpen(true)}
         aria-label="Open menu"
       >
-        <Menu size={23} />
+        <Menu size={22} />
       </button>
 
       <div className="mobile-brand">
@@ -316,7 +344,9 @@ function Topbar({
       </div>
 
       <div className="selector">
-        <label>Season</label>
+        <label>
+          Season
+        </label>
 
         <div className="select-shell">
           <select
@@ -335,7 +365,9 @@ function Topbar({
       </div>
 
       <div className="selector week-selector">
-        <label>Week</label>
+        <label>
+          Week
+        </label>
 
         <div className="select-shell">
           <select
@@ -359,7 +391,9 @@ function Topbar({
       </div>
 
       <div className="next-games">
-        <span>Next Games</span>
+        <span>
+          Next Games
+        </span>
 
         <strong>
           3d 12h 24m
@@ -370,8 +404,13 @@ function Topbar({
         <span className="demo-status-dot" />
 
         <div>
-          <strong>SAMPLE DATA</strong>
-          <span>Model connection pending</span>
+          <strong>
+            SAMPLE DATA
+          </strong>
+
+          <span>
+            Model connection pending
+          </span>
         </div>
       </div>
 
@@ -393,63 +432,190 @@ function Topbar({
   );
 }
 
+/* =========================================================
+   HERO / WEEKLY COMMAND CENTER
+   ========================================================= */
+
+function HeroHighlightCard({
+  label,
+  title,
+  primary,
+  secondary,
+  meta,
+  accent,
+  icon
+}) {
+  return (
+    <div className={`highlight-card ${accent}`}>
+      <div className="highlight-card-header">
+        <span className="highlight-icon">
+          {icon}
+        </span>
+
+        <span className="highlight-label">
+          {label}
+        </span>
+      </div>
+
+      <div className="highlight-title">
+        {title}
+      </div>
+
+      <div className="highlight-primary">
+        {primary}
+      </div>
+
+      <div className="highlight-secondary">
+        {secondary}
+      </div>
+
+      <div className="highlight-meta">
+        {meta}
+      </div>
+    </div>
+  );
+}
+
 function Hero() {
   return (
     <section className="hero">
-      <div className="hero-left">
-        <div className="eyebrow">
-          NFL MODEL + BETTING ANALYTICS
+      <div className="hero-heading-row">
+        <div>
+          <div className="eyebrow">
+            WEEKLY COMMAND CENTER
+          </div>
+
+          <h1>
+            WEEK 1 SNAPSHOT
+          </h1>
+
+          <div className="hero-brand-message">
+            <span>
+              NFL MODEL + BETTING ANALYTICS
+            </span>
+
+            <strong>
+              Peel back the numbers.
+            </strong>
+          </div>
         </div>
 
-        <h1>
-          NFL PREDICTIONS
-        </h1>
+        <div className="hero-week-status">
+          <span>
+            2026 REGULAR SEASON
+          </span>
 
-        <p className="hero-description">
           <strong>
-            Peel back the numbers.
+            16 GAMES
           </strong>
 
-          <span>
-            Model-driven analysis built to identify value,
-            measure uncertainty, and explain the edge.
-          </span>
-        </p>
-
-        <div className="hero-actions">
-          <button className="primary-button">
-            View This Week&apos;s Games
-          </button>
-
-          <button className="secondary-button">
-            How the Model Works
-          </button>
+          <small>
+            Current slate
+          </small>
         </div>
       </div>
 
-      <div className="hero-right">
-        <div className="controller-panel">
-          <div className="controller-chart">
-            <div className="chart-bar green-bar" />
-            <div className="chart-bar red-bar" />
-            <div className="chart-bar blue-bar" />
+      <div className="hero-highlight-grid">
+        <HeroHighlightCard
+          label="BEST EDGE"
+          title="MIA MONEYLINE"
+          primary="+8.4% EV"
+          secondary="Model: 61% · Market: 51%"
+          meta="+150 sportsbook price"
+          accent="highlight-yellow"
+          icon={<Trophy size={18} />}
+        />
+
+        <HeroHighlightCard
+          label="PROP WATCH"
+          title="J. ALLEN O37.5 RUSH YDS"
+          primary="44.2 YDS"
+          secondary="Model projection"
+          meta="7.2 yards above line"
+          accent="highlight-blue"
+          icon={<Target size={18} />}
+        />
+
+        <HeroHighlightCard
+          label="TREND WATCH"
+          title="RUSH YARDS OVER"
+          primary="4 OF LAST 5"
+          secondary="Recent games above line"
+          meta="3 straight entering this week"
+          accent="highlight-green"
+          icon={<TrendingUp size={18} />}
+        />
+
+        <HeroHighlightCard
+          label="MARKET MOVE"
+          title="BUF SPREAD"
+          primary="-2.5 → -3.5"
+          secondary="Line moved one point"
+          meta="Watch price before kickoff"
+          accent="highlight-red"
+          icon={<Activity size={18} />}
+        />
+      </div>
+
+      <div className="model-alert">
+        <div className="model-alert-left">
+          <span className="model-alert-label">
+            MODEL VS MARKET
+          </span>
+
+          <strong>
+            MIA @ LV
+          </strong>
+
+          <span className="model-alert-description">
+            One of the largest model-market disagreements
+            on the current slate.
+          </span>
+        </div>
+
+        <div className="model-alert-numbers">
+          <div>
+            <span>
+              MODEL
+            </span>
+
+            <strong className="blue-text">
+              61%
+            </strong>
           </div>
 
-          <div className="trend-arrow">
-            ↗
+          <div className="alert-divider" />
+
+          <div>
+            <span>
+              MARKET
+            </span>
+
+            <strong>
+              51%
+            </strong>
           </div>
 
-          <div className="controller-buttons">
-            <span className="button-blue" />
-            <span className="button-green" />
-            <span className="button-red" />
-            <span className="button-yellow" />
+          <div className="alert-divider" />
+
+          <div>
+            <span>
+              GAP
+            </span>
+
+            <strong className="green-text">
+              +10.0
+            </strong>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+/* =========================================================
+   METRICS
+   ========================================================= */
 
 function MetricCard({
   icon,
@@ -480,35 +646,35 @@ function Metrics() {
   return (
     <section className="metrics">
       <MetricCard
-        icon={<TrendingUp size={25} />}
+        icon={<TrendingUp size={24} />}
         value="+12.4%"
         label="ROI"
         accent="green-accent"
       />
 
       <MetricCard
-        icon={<Target size={25} />}
+        icon={<Target size={24} />}
         value="58.3%"
         label="Win Rate"
         accent="blue-accent"
       />
 
       <MetricCard
-        icon={<Database size={25} />}
+        icon={<Database size={24} />}
         value="1,287"
         label="Games Analyzed"
         accent="gray-accent"
       />
 
       <MetricCard
-        icon={<Activity size={25} />}
+        icon={<Activity size={24} />}
         value="7-3"
         label="Last 10 Picks"
         accent="red-accent"
       />
 
       <MetricCard
-        icon={<Trophy size={25} />}
+        icon={<Trophy size={24} />}
         value="+8.2%"
         label="Average Edge"
         accent="yellow-accent"
@@ -517,13 +683,9 @@ function Metrics() {
   );
 }
 
-function TeamBadge({ team }) {
-  return (
-    <span className="team-badge">
-      {team}
-    </span>
-  );
-}
+/* =========================================================
+   PREDICTIONS TABLE
+   ========================================================= */
 
 function PredictionsTable() {
   return (
@@ -569,17 +731,13 @@ function PredictionsTable() {
 
                   <td>
                     <div className="matchup">
-                      <TeamBadge
-                        team={game.away}
-                      />
+                      <TeamBadge team={game.away} />
 
                       <span className="at">
                         @
                       </span>
 
-                      <TeamBadge
-                        team={game.home}
-                      />
+                      <TeamBadge team={game.home} />
                     </div>
                   </td>
 
@@ -593,13 +751,11 @@ function PredictionsTable() {
 
                   <td>
                     <div>
-                      {game.away}{" "}
-                      {game.awayML}
+                      {game.away} {game.awayML}
                     </div>
 
                     <div>
-                      {game.home}{" "}
-                      {game.homeML}
+                      {game.home} {game.homeML}
                     </div>
                   </td>
 
@@ -636,22 +792,23 @@ function PredictionsTable() {
   );
 }
 
+/* =========================================================
+   CONFIDENCE CARD
+   ========================================================= */
+
 function ConfidenceCard() {
   const counts = useMemo(
     () => ({
       high: GAMES.filter(
-        (game) =>
-          game.confidence === "high"
+        (game) => game.confidence === "high"
       ).length,
 
       medium: GAMES.filter(
-        (game) =>
-          game.confidence === "medium"
+        (game) => game.confidence === "medium"
       ).length,
 
       low: GAMES.filter(
-        (game) =>
-          game.confidence === "low"
+        (game) => game.confidence === "low"
       ).length
     }),
     []
@@ -674,10 +831,12 @@ function ConfidenceCard() {
       <div className="confidence-content">
         <div className="confidence-ring">
           <div className="ring-center">
-            <strong>16</strong>
+            <strong>
+              {GAMES.length}
+            </strong>
 
             <span>
-              Games
+              Featured
             </span>
           </div>
         </div>
@@ -685,7 +844,9 @@ function ConfidenceCard() {
         <div className="confidence-list">
           <div>
             <span className="legend blue" />
+
             High
+
             <strong>
               {counts.high}
             </strong>
@@ -693,7 +854,9 @@ function ConfidenceCard() {
 
           <div>
             <span className="legend green" />
+
             Medium
+
             <strong>
               {counts.medium}
             </strong>
@@ -701,7 +864,9 @@ function ConfidenceCard() {
 
           <div>
             <span className="legend gray" />
+
             Low
+
             <strong>
               {counts.low}
             </strong>
@@ -711,6 +876,10 @@ function ConfidenceCard() {
     </section>
   );
 }
+
+/* =========================================================
+   BETTING ANGLES
+   ========================================================= */
 
 function BettingAngles() {
   return (
@@ -753,11 +922,15 @@ function BettingAngles() {
   );
 }
 
+/* =========================================================
+   BET TRACKER
+   ========================================================= */
+
 function BetTracker() {
   return (
     <section className="panel bet-tracker">
       <div className="tracker-icon">
-        <TrendingUp size={30} />
+        <TrendingUp size={27} />
       </div>
 
       <div>
@@ -766,8 +939,7 @@ function BetTracker() {
         </h3>
 
         <p>
-          Track units, wins, losses,
-          CLV and ROI.
+          Track units, results, CLV and ROI.
         </p>
       </div>
 
@@ -777,6 +949,10 @@ function BetTracker() {
     </section>
   );
 }
+
+/* =========================================================
+   WIN PROBABILITY
+   ========================================================= */
 
 function WinProbability() {
   return (
@@ -817,6 +993,10 @@ function WinProbability() {
     </section>
   );
 }
+
+/* =========================================================
+   MODEL COMPONENTS
+   ========================================================= */
 
 function ModelComponents() {
   return (
@@ -864,6 +1044,10 @@ function ModelComponents() {
   );
 }
 
+/* =========================================================
+   INSIGHTS
+   ========================================================= */
+
 function LatestInsights() {
   return (
     <section className="panel insights-panel">
@@ -878,32 +1062,41 @@ function LatestInsights() {
       <div className="insights">
         <button>
           <span className="insight-dot blue" />
+
           Model weights and calibration
         </button>
 
         <button>
           <span className="insight-dot green" />
+
           Best values this week
         </button>
 
         <button>
           <span className="insight-dot yellow" />
+
           Market movement report
         </button>
 
         <button>
           <span className="insight-dot red" />
+
           High-risk disagreement games
         </button>
 
         <button>
           <span className="insight-dot gray" />
+
           Model performance history
         </button>
       </div>
     </section>
   );
 }
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
 
 function Dashboard() {
   return (
@@ -935,6 +1128,10 @@ function Dashboard() {
   );
 }
 
+/* =========================================================
+   PLACEHOLDER PAGES
+   ========================================================= */
+
 function Placeholder({ page }) {
   return (
     <section className="placeholder panel">
@@ -948,16 +1145,18 @@ function Placeholder({ page }) {
       </h1>
 
       <p>
-        This section is ready for its
-        Banana Bets data view. The
-        navigation already works, so we
-        can connect this page to the
-        appropriate Google Sheets output
-        later.
+        This section is ready for its Banana Bets data
+        view. Navigation already works, so this page can
+        later connect directly to the appropriate model
+        output.
       </p>
     </section>
   );
 }
+
+/* =========================================================
+   APP
+   ========================================================= */
 
 export default function App() {
   const [
@@ -1016,11 +1215,11 @@ export default function App() {
           </div>
 
           <div>
-            Model Methodology
+            Model
             <span>•</span>
-            Disclaimer
+            Data
             <span>•</span>
-            Contact
+            Bet Log
           </div>
         </footer>
       </div>

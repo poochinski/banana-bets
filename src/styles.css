@@ -74,9 +74,9 @@ button {
   color: inherit;
 }
 
-/* =========================================
-   MAIN APP LAYOUT
-   ========================================= */
+/* =========================================================
+   APP
+   ========================================================= */
 
 .app {
   display: grid;
@@ -88,9 +88,15 @@ button {
   min-height: 100vh;
 }
 
-/* =========================================
+.site {
+  grid-column: 2;
+
+  min-width: 0;
+}
+
+/* =========================================================
    SIDEBAR
-   ========================================= */
+   ========================================================= */
 
 .sidebar {
   position: fixed;
@@ -130,15 +136,16 @@ button {
   display: none;
 }
 
-/* =========================================
+/* =========================================================
    BRAND
-   ========================================= */
+   ========================================================= */
 
 .brand {
   display: grid;
 
   grid-template-columns:
-    58px minmax(0, 1fr);
+    58px
+    minmax(0, 1fr);
 
   align-items: center;
 
@@ -168,12 +175,13 @@ button {
   background:
     linear-gradient(
       145deg,
-      #f6f6f6,
-      #c9cacf
+      #f7f7f7,
+      #c7c8cd
     );
 
   box-shadow:
-    inset 0 1px 1px
+    inset
+    0 1px 1px
     rgba(255, 255, 255, 0.8),
     0 5px 12px
     rgba(41, 43, 48, 0.13);
@@ -217,7 +225,7 @@ button {
 
   font-weight: 900;
 
-  letter-spacing: 0.75px;
+  letter-spacing: 0.72px;
 
   white-space: nowrap;
 }
@@ -232,8 +240,6 @@ button {
   font-weight: 600;
 
   font-style: italic;
-
-  letter-spacing: 0.05px;
 }
 
 .brand-dots {
@@ -255,17 +261,13 @@ button {
 
   border:
     1px solid
-    rgba(0, 0, 0, 0.20);
+    rgba(0, 0, 0, 0.2);
 
   box-shadow:
     inset
     0 1px 1px
     rgba(255, 255, 255, 0.4);
 }
-
-/* =========================================
-   SEMANTIC COLORS
-   ========================================= */
 
 .blue {
   background: var(--blue);
@@ -287,9 +289,9 @@ button {
   background: #8d9097;
 }
 
-/* =========================================
-   NAVIGATION
-   ========================================= */
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
 
 .nav-label {
   padding:
@@ -354,7 +356,8 @@ button {
 }
 
 .nav-button:active {
-  transform: translateY(1px);
+  transform:
+    translateY(1px);
 }
 
 .nav-button.active {
@@ -392,9 +395,9 @@ button {
   font-weight: 900;
 }
 
-/* =========================================
+/* =========================================================
    SIDEBAR FOOTER
-   ========================================= */
+   ========================================================= */
 
 .sidebar-footer {
   margin-top: auto;
@@ -436,19 +439,9 @@ button {
   line-height: 1.6;
 }
 
-/* =========================================
-   MAIN SITE
-   ========================================= */
-
-.site {
-  grid-column: 2;
-
-  min-width: 0;
-}
-
-/* =========================================
-   TOP BAR
-   ========================================= */
+/* =========================================================
+   TOPBAR
+   ========================================================= */
 
 .topbar {
   position: sticky;
@@ -501,8 +494,6 @@ button {
   font-size: 13px;
 
   font-weight: 900;
-
-  letter-spacing: -0.3px;
 }
 
 .mobile-brand img {
@@ -526,9 +517,9 @@ button {
   color: #60636a;
 }
 
-/* =========================================
-   SELECTORS
-   ========================================= */
+/* =========================================================
+   TOPBAR SELECTORS
+   ========================================================= */
 
 .selector {
   display: grid;
@@ -571,7 +562,8 @@ button {
     );
 
   box-shadow:
-    inset 0 1px white;
+    inset
+    0 1px white;
 }
 
 .select-shell select {
@@ -590,9 +582,9 @@ button {
   font-weight: 700;
 }
 
-/* =========================================
-   NEXT GAME COUNTDOWN
-   ========================================= */
+/* =========================================================
+   NEXT GAME
+   ========================================================= */
 
 .next-games {
   min-width: 145px;
@@ -614,9 +606,9 @@ button {
   font-size: 18px;
 }
 
-/* =========================================
-   DEMO DATA INDICATOR
-   ========================================= */
+/* =========================================================
+   SAMPLE DATA INDICATOR
+   ========================================================= */
 
 .demo-status {
   display: flex;
@@ -677,9 +669,9 @@ button {
   font-size: 8px;
 }
 
-/* =========================================
+/* =========================================================
    SEARCH / PROFILE
-   ========================================= */
+   ========================================================= */
 
 .search-shell {
   margin-left: auto;
@@ -760,9 +752,9 @@ button {
   cursor: pointer;
 }
 
-/* =========================================
-   CONTENT
-   ========================================= */
+/* =========================================================
+   PAGE CONTENT
+   ========================================================= */
 
 .content {
   padding:
@@ -771,43 +763,90 @@ button {
     30px;
 }
 
-/* =========================================
-   HERO
-   ========================================= */
+/* =========================================================
+   WEEKLY COMMAND CENTER HERO
+   ========================================================= */
 
 .hero {
-  min-height: 193px;
-
-  display: grid;
-
-  grid-template-columns:
-    1.4fr
-    0.8fr;
-
-  align-items: center;
+  position: relative;
 
   overflow: hidden;
 
+  padding:
+    27px
+    30px
+    25px;
+
   border:
     1px solid
-    #a5a7ad;
+    #72757c;
 
   border-radius: 17px;
 
   background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(24, 117, 239, 0.14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 4% 100%,
+      rgba(231, 185, 47, 0.08),
+      transparent 31%
+    ),
     linear-gradient(
-      120deg,
-      #5d6068,
-      #35383e
+      135deg,
+      #41444b 0%,
+      #2f3238 52%,
+      #25282d 100%
     );
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 10px 28px
+    rgba(30, 32, 37, 0.17);
 }
 
-.hero-left {
-  padding:
-    30px
-    38px;
+.hero::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: 0.14;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.07) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    32px 32px;
+}
+
+.hero > * {
+  position: relative;
+
+  z-index: 1;
+}
+
+.hero-heading-row {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content:
+    space-between;
+
+  gap: 25px;
 }
 
 .eyebrow {
@@ -815,289 +854,436 @@ button {
 
   color: var(--yellow);
 
-  font-size: 10px;
+  font-size: 9px;
 
   font-weight: 900;
 
-  letter-spacing: 2px;
+  letter-spacing: 2.4px;
 }
 
 .hero h1 {
   margin: 0;
 
-  color: white;
+  color: #f8f8f8;
 
   font-size:
     clamp(
-      32px,
-      4vw,
-      50px
+      28px,
+      3.2vw,
+      43px
     );
 
   line-height: 1;
 
   font-weight: 1000;
 
-  letter-spacing: -2px;
+  letter-spacing: -1.7px;
 }
 
-.hero-description {
-  display: grid;
+.hero-brand-message {
+  display: flex;
 
-  gap: 4px;
+  align-items: center;
 
-  max-width: 570px;
+  gap: 10px;
 
-  margin:
-    12px
-    0
-    20px;
+  margin-top: 10px;
 }
 
-.hero-description strong {
-  color: white;
+.hero-brand-message span {
+  color: #aaaeb7;
 
-  font-size: 15px;
+  font-size: 9px;
 
   font-weight: 800;
+
+  letter-spacing: 1px;
 }
 
-.hero-description span {
-  color: #d7d8dc;
+.hero-brand-message strong {
+  padding-left: 10px;
+
+  border-left:
+    1px solid
+    #62656c;
+
+  color: #ececef;
 
   font-size: 12px;
 
-  line-height: 1.55;
+  font-style: italic;
+
+  font-weight: 600;
 }
 
-.hero-actions {
-  display: flex;
+/* =========================================================
+   HERO WEEK STATUS
+   ========================================================= */
 
-  gap: 9px;
-}
+.hero-week-status {
+  min-width: 165px;
 
-.primary-button,
-.secondary-button {
+  display: grid;
+
+  justify-items: end;
+
+  gap: 2px;
+
   padding:
     10px
-    16px;
+    13px;
 
-  border-radius: 8px;
+  border:
+    1px solid
+    #60636a;
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.035);
+}
+
+.hero-week-status span {
+  color: #90949d;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.hero-week-status strong {
+  color: white;
+
+  font-size: 20px;
+}
+
+.hero-week-status small {
+  color: #92959d;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   HERO HIGHLIGHT CARDS
+   ========================================================= */
+
+.hero-highlight-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 11px;
+
+  margin-top: 23px;
+}
+
+.highlight-card {
+  position: relative;
+
+  min-height: 152px;
+
+  overflow: hidden;
+
+  padding:
+    15px
+    15px
+    14px;
+
+  border:
+    1px solid
+    #5b5e65;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.025)
+    );
+
+  box-shadow:
+    inset
+    0 1px 0
+    rgba(255, 255, 255, 0.06);
+}
+
+.highlight-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 3px;
+}
+
+.highlight-yellow::before {
+  background: var(--yellow);
+}
+
+.highlight-blue::before {
+  background: var(--blue-light);
+}
+
+.highlight-green::before {
+  background: var(--green-light);
+}
+
+.highlight-red::before {
+  background: var(--red-light);
+}
+
+.highlight-card-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 12px;
+}
+
+.highlight-icon {
+  display: grid;
+
+  place-items: center;
+
+  color: #d9dadd;
+}
+
+.highlight-yellow .highlight-icon {
+  color: var(--yellow);
+}
+
+.highlight-blue .highlight-icon {
+  color: #4a9aff;
+}
+
+.highlight-green .highlight-icon {
+  color: #26cb91;
+}
+
+.highlight-red .highlight-icon {
+  color: #f05b64;
+}
+
+.highlight-label {
+  color: #a4a7ae;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.4px;
+}
+
+.highlight-title {
+  min-height: 31px;
+
+  color: #e8e9eb;
 
   font-size: 11px;
 
   font-weight: 900;
 
-  cursor: pointer;
-
-  transition:
-    transform 0.15s,
-    box-shadow 0.15s;
+  letter-spacing: 0.2px;
 }
 
-.primary-button:hover,
-.secondary-button:hover {
-  transform: translateY(-1px);
-}
-
-.primary-button {
-  border:
-    1px solid
-    #c89d18;
-
-  background:
-    linear-gradient(
-      180deg,
-      var(--yellow-light),
-      var(--yellow)
-    );
-
-  color: #303238;
-
-  box-shadow:
-    0 5px 13px
-    rgba(231, 185, 47, 0.22);
-}
-
-.secondary-button {
-  border:
-    1px solid
-    #777a81;
-
-  background:
-    #4a4d54;
+.highlight-primary {
+  margin-top: 6px;
 
   color: white;
+
+  font-size: 22px;
+
+  font-weight: 1000;
+
+  letter-spacing: -0.7px;
 }
 
-/* =========================================
-   CONTROLLER HERO ART
-   ========================================= */
-
-.hero-right {
-  height: 100%;
-
-  display: grid;
-
-  place-items: center;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.07),
-      transparent
-    );
+.highlight-yellow .highlight-primary {
+  color: var(--yellow-light);
 }
 
-.controller-panel {
-  position: relative;
-
-  width: 235px;
-  height: 130px;
-
-  border:
-    2px solid
-    #85888e;
-
-  border-radius: 65px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #d5d6da,
-      #9ea0a6
-    );
-
-  box-shadow:
-    inset
-    0 3px 5px
-    rgba(255, 255, 255, 0.55),
-    0 8px 18px
-    rgba(0, 0, 0, 0.18);
+.highlight-blue .highlight-primary {
+  color: #4093ff;
 }
 
-.controller-chart {
-  position: absolute;
+.highlight-green .highlight-primary {
+  color: #28d194;
+}
 
-  left: 30px;
+.highlight-red .highlight-primary {
+  color: #ff6b73;
+}
 
-  bottom: 30px;
+.highlight-secondary {
+  margin-top: 4px;
 
+  color: #c2c4c9;
+
+  font-size: 9px;
+
+  font-weight: 700;
+}
+
+.highlight-meta {
+  margin-top: 7px;
+
+  color: #858991;
+
+  font-size: 8px;
+}
+
+/* =========================================================
+   MODEL VS MARKET STRIP
+   ========================================================= */
+
+.model-alert {
   display: flex;
 
-  align-items: flex-end;
+  align-items: center;
 
-  gap: 7px;
-}
+  justify-content:
+    space-between;
 
-.chart-bar {
-  width: 20px;
+  gap: 20px;
+
+  margin-top: 12px;
+
+  padding:
+    12px
+    15px;
 
   border:
-    2px solid
-    #373a40;
+    1px solid
+    #555960;
 
-  border-radius:
-    8px
-    8px
-    2px
-    2px;
+  border-radius: 11px;
+
+  background:
+    rgba(16, 18, 22, 0.31);
 }
 
-.green-bar {
-  height: 40px;
+.model-alert-left {
+  display: flex;
 
-  background: var(--green);
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
 }
 
-.red-bar {
-  height: 57px;
+.model-alert-label {
+  padding:
+    5px
+    8px;
 
-  background: var(--red);
-}
+  border:
+    1px solid
+    rgba(24, 117, 239, 0.35);
 
-.blue-bar {
-  height: 76px;
+  border-radius: 6px;
 
-  background: var(--blue);
-}
+  background:
+    rgba(8, 98, 217, 0.14);
 
-.trend-arrow {
-  position: absolute;
+  color: #5ca1ff;
 
-  left: 28px;
-  top: 3px;
-
-  color: #363940;
-
-  font-size: 54px;
+  font-size: 7px;
 
   font-weight: 900;
 
-  transform: rotate(-4deg);
+  letter-spacing: 1px;
 }
 
-.controller-buttons {
-  position: absolute;
+.model-alert-left strong {
+  color: white;
 
-  right: 26px;
-  top: 36px;
+  font-size: 12px;
 
-  width: 80px;
-  height: 70px;
+  white-space: nowrap;
 }
 
-.controller-buttons span {
-  position: absolute;
+.model-alert-description {
+  overflow: hidden;
 
-  width: 28px;
-  height: 28px;
+  color: #a3a6ad;
 
-  border-radius: 50%;
+  font-size: 9px;
 
-  border:
-    2px solid
-    #44474d;
+  text-overflow: ellipsis;
 
-  box-shadow:
-    inset
-    0 2px 3px
-    rgba(255, 255, 255, 0.4),
-    0 2px 3px
-    rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
 }
 
-.button-blue {
-  background: var(--blue);
+.model-alert-numbers {
+  display: flex;
 
-  top: 0;
-  left: 26px;
+  align-items: center;
+
+  gap: 12px;
+
+  flex:
+    0
+    0
+    auto;
 }
 
-.button-green {
-  background: var(--green);
+.model-alert-numbers div:not(.alert-divider) {
+  display: grid;
 
-  left: 0;
-  top: 24px;
+  gap: 1px;
+
+  text-align: right;
 }
 
-.button-red {
-  background: var(--red);
+.model-alert-numbers span {
+  color: #7f838c;
 
-  right: 0;
-  top: 24px;
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
 }
 
-.button-yellow {
-  background: var(--yellow);
+.model-alert-numbers strong {
+  color: white;
 
-  left: 26px;
-  bottom: 0;
+  font-size: 16px;
 }
 
-/* =========================================
+.model-alert-numbers
+.blue-text {
+  color: #4595ff;
+}
+
+.model-alert-numbers
+.green-text {
+  color: #29cb91;
+}
+
+.alert-divider {
+  width: 1px;
+  height: 27px;
+
+  background: #53565d;
+}
+
+/* =========================================================
    METRICS
-   ========================================= */
+   ========================================================= */
 
 .metrics {
   display: grid;
@@ -1206,9 +1392,9 @@ button {
   font-size: 10px;
 }
 
-/* =========================================
-   GENERAL PANELS
-   ========================================= */
+/* =========================================================
+   PANELS
+   ========================================================= */
 
 .panel {
   min-width: 0;
@@ -1288,9 +1474,9 @@ button {
   cursor: pointer;
 }
 
-/* =========================================
+/* =========================================================
    DASHBOARD GRIDS
-   ========================================= */
+   ========================================================= */
 
 .main-dashboard {
   display: grid;
@@ -1323,9 +1509,9 @@ button {
   margin-top: 14px;
 }
 
-/* =========================================
-   PREDICTIONS TABLE
-   ========================================= */
+/* =========================================================
+   TABLE
+   ========================================================= */
 
 .table-wrap {
   overflow-x: auto;
@@ -1365,7 +1551,8 @@ th {
 }
 
 tbody tr {
-  transition: background 0.15s;
+  transition:
+    background 0.15s;
 }
 
 tbody tr:hover {
@@ -1386,7 +1573,6 @@ tbody tr:hover {
 
 .team-badge {
   min-width: 34px;
-
   height: 25px;
 
   display: inline-grid;
@@ -1479,9 +1665,9 @@ tbody tr:hover {
   color: #676a70;
 }
 
-/* =========================================
+/* =========================================================
    CONFIDENCE
-   ========================================= */
+   ========================================================= */
 
 .confidence-content {
   display: flex;
@@ -1571,9 +1757,9 @@ tbody tr:hover {
   border-radius: 50%;
 }
 
-/* =========================================
-   BETTING ANGLES
-   ========================================= */
+/* =========================================================
+   ANGLES
+   ========================================================= */
 
 .angles {
   display: grid;
@@ -1623,9 +1809,9 @@ tbody tr:hover {
   color: var(--green);
 }
 
-/* =========================================
+/* =========================================================
    BET TRACKER
-   ========================================= */
+   ========================================================= */
 
 .bet-tracker {
   display: grid;
@@ -1688,9 +1874,9 @@ tbody tr:hover {
   cursor: pointer;
 }
 
-/* =========================================
-   WIN PROBABILITY
-   ========================================= */
+/* =========================================================
+   WIN PROBABILITIES
+   ========================================================= */
 
 .probability-list {
   display: grid;
@@ -1738,9 +1924,9 @@ tbody tr:hover {
     );
 }
 
-/* =========================================
+/* =========================================================
    MODEL COMPONENTS
-   ========================================= */
+   ========================================================= */
 
 .selected-game {
   margin-top: 4px;
@@ -1791,9 +1977,9 @@ tbody tr:hover {
   border-radius: 8px;
 }
 
-/* =========================================
+/* =========================================================
    INSIGHTS
-   ========================================= */
+   ========================================================= */
 
 .insights {
   display: grid;
@@ -1842,9 +2028,9 @@ tbody tr:hover {
   border-radius: 50%;
 }
 
-/* =========================================
+/* =========================================================
    PLACEHOLDER PAGES
-   ========================================= */
+   ========================================================= */
 
 .placeholder {
   min-height: 65vh;
@@ -1872,9 +2058,9 @@ tbody tr:hover {
   line-height: 1.7;
 }
 
-/* =========================================
+/* =========================================================
    FOOTER
-   ========================================= */
+   ========================================================= */
 
 footer {
   min-height: 62px;
@@ -1919,19 +2105,27 @@ footer > div:last-child {
   gap: 13px;
 }
 
-/* =========================================
-   MOBILE OVERLAY
-   ========================================= */
+/* =========================================================
+   MOBILE BACKDROP
+   ========================================================= */
 
 .mobile-backdrop {
   display: none;
 }
 
-/* =========================================
-   TABLET / SMALL DESKTOP
-   ========================================= */
+/* =========================================================
+   SMALL DESKTOP
+   ========================================================= */
 
 @media (max-width: 1180px) {
+  .hero-highlight-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
   .metrics {
     grid-template-columns:
       repeat(
@@ -1961,9 +2155,9 @@ footer > div:last-child {
   }
 }
 
-/* =========================================
-   TABLET / MOBILE NAV
-   ========================================= */
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
   .app {
@@ -2043,13 +2237,17 @@ footer > div:last-child {
   .next-games {
     margin-left: auto;
 
-    border-left: 0;
-
     padding-left: 0;
+
+    border-left: 0;
   }
 
   .demo-status {
     display: none;
+  }
+
+  .hero-heading-row {
+    align-items: center;
   }
 
   .main-dashboard {
@@ -2067,11 +2265,24 @@ footer > div:last-child {
     grid-column:
       1 / -1;
   }
+
+  .model-alert {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .model-alert-numbers {
+    width: 100%;
+
+    justify-content:
+      flex-start;
+  }
 }
 
-/* =========================================
+/* =========================================================
    PHONE
-   ========================================= */
+   ========================================================= */
 
 @media (max-width: 680px) {
   .content {
@@ -2105,28 +2316,101 @@ footer > div:last-child {
   }
 
   .hero {
-    grid-template-columns:
-      1fr;
-
-    min-height: 220px;
+    padding:
+      22px
+      16px
+      17px;
   }
 
-  .hero-left {
-    padding:
-      25px
-      20px;
+  .hero-heading-row {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 14px;
   }
 
   .hero h1 {
-    font-size: 34px;
+    font-size: 30px;
   }
 
-  .hero-right {
+  .hero-brand-message {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
+  .hero-brand-message strong {
+    padding-left: 0;
+
+    border-left: 0;
+  }
+
+  .hero-week-status {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+      space-between;
+  }
+
+  .hero-week-status strong {
+    font-size: 14px;
+  }
+
+  .hero-week-status small {
     display: none;
   }
 
-  .hero-actions {
+  .hero-highlight-grid {
+    grid-template-columns:
+      1fr
+      1fr;
+
+    gap: 8px;
+
+    margin-top: 15px;
+  }
+
+  .highlight-card {
+    min-height: 147px;
+
+    padding:
+      12px
+      11px;
+  }
+
+  .highlight-title {
+    font-size: 9px;
+  }
+
+  .highlight-primary {
+    font-size: 17px;
+  }
+
+  .highlight-secondary {
+    font-size: 8px;
+  }
+
+  .highlight-meta {
+    font-size: 7px;
+  }
+
+  .model-alert-left {
+    align-items: flex-start;
+
     flex-wrap: wrap;
+  }
+
+  .model-alert-description {
+    width: 100%;
+
+    white-space: normal;
   }
 
   .metrics {
@@ -2163,5 +2447,25 @@ footer > div:last-child {
 
   footer > div:last-child {
     flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONE
+   ========================================================= */
+
+@media (max-width: 450px) {
+  .hero-highlight-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .highlight-card {
+    min-height: auto;
+  }
+
+  .model-alert-numbers {
+    justify-content:
+      space-between;
   }
 }
