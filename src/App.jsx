@@ -1,219 +1,591 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+
 import {
-  Activity,
+  Home,
+  Gamepad2,
+  SlidersHorizontal,
+  Trophy,
+  Users,
   BarChart3,
   BrainCircuit,
-  ChevronDown,
-  CircleDollarSign,
-  Database,
-  Gamepad2,
-  Home,
-  Menu,
-  Search,
-  Settings,
-  ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
-  Target,
   TrendingUp,
-  Trophy,
+  ShieldCheck,
+  Settings,
+  Search,
   User,
-  Users,
-  WalletCards,
+  Menu,
+  ChevronDown,
+  Database,
+  Target,
+  CircleDollarSign,
+  Activity,
   X
 } from "lucide-react";
-import { demoDashboard } from "./data.js";
-import { getDashboard } from "./api.js";
 
-const NAV = [
-  { label: "Dashboard", icon: Home },
-  { label: "Games", icon: Gamepad2 },
-  { label: "Bet Finder", icon: Target },
-  { label: "Bet Analyzer", icon: SlidersHorizontal },
-  { label: "Moneylines", icon: CircleDollarSign },
-  { label: "Spreads & Totals", icon: BarChart3 },
-  { label: "Player Props", icon: Users, badge: "Later" },
-  { label: "Model Lab", icon: BrainCircuit },
-  { label: "Performance", icon: TrendingUp },
-  { label: "My Bets", icon: WalletCards },
-  { label: "Settings", icon: Settings }
+const NAV_ITEMS = [
+  { name: "Dashboard", icon: Home },
+  { name: "Game Predictions", icon: Gamepad2 },
+  { name: "Spreads & Totals", icon: SlidersHorizontal },
+  { name: "Moneylines", icon: CircleDollarSign },
+  { name: "Player Props", icon: Users, badge: "Soon" },
+  { name: "Team Analytics", icon: BarChart3 },
+  { name: "Model Insights", icon: BrainCircuit },
+  { name: "Trends & Angles", icon: TrendingUp },
+  { name: "My Bets / Tracking", icon: ShieldCheck },
+  { name: "Settings", icon: Settings }
 ];
 
-function BananaLogo({ compact = false }) {
+const GAMES = [
+  {
+    date: "Thu 9/10",
+    away: "DAL",
+    home: "PHI",
+    spread: "PHI -6.5",
+    total: "47.5",
+    awayML: "+210",
+    homeML: "-250",
+    probability: 72,
+    edge: 8.1,
+    pick: "PHI -6.5",
+    confidence: "high"
+  },
+  {
+    date: "Sun 9/13",
+    away: "MIA",
+    home: "LV",
+    spread: "LV -2.5",
+    total: "44.0",
+    awayML: "+120",
+    homeML: "-140",
+    probability: 58,
+    edge: 4.3,
+    pick: "LV -2.5",
+    confidence: "medium"
+  },
+  {
+    date: "Sun 9/13",
+    away: "SF",
+    home: "LA",
+    spread: "LA -1.5",
+    total: "46.0",
+    awayML: "+110",
+    homeML: "-130",
+    probability: 56,
+    edge: 2.1,
+    pick: "PASS",
+    confidence: "low"
+  },
+  {
+    date: "Sun 9/13",
+    away: "BAL",
+    home: "IND",
+    spread: "BAL -3.0",
+    total: "45.5",
+    awayML: "-160",
+    homeML: "+135",
+    probability: 63,
+    edge: 5.7,
+    pick: "BAL -3.0",
+    confidence: "medium"
+  },
+  {
+    date: "Sun 9/13",
+    away: "KC",
+    home: "DEN",
+    spread: "KC -4.5",
+    total: "47.0",
+    awayML: "-200",
+    homeML: "+170",
+    probability: 67,
+    edge: 6.9,
+    pick: "KC -4.5",
+    confidence: "high"
+  },
+  {
+    date: "Sun 9/13",
+    away: "CIN",
+    home: "TB",
+    spread: "TB -1.0",
+    total: "46.5",
+    awayML: "+105",
+    homeML: "-125",
+    probability: 54,
+    edge: 1.8,
+    pick: "PASS",
+    confidence: "low"
+  },
+  {
+    date: "Sun 9/13",
+    away: "ATL",
+    home: "TB",
+    spread: "TB -3.5",
+    total: "45.0",
+    awayML: "+150",
+    homeML: "-175",
+    probability: 61,
+    edge: 4.9,
+    pick: "TB -3.5",
+    confidence: "medium"
+  },
+  {
+    date: "Mon 9/14",
+    away: "NYJ",
+    home: "BUF",
+    spread: "BUF -7.0",
+    total: "48.5",
+    awayML: "+250",
+    homeML: "-300",
+    probability: 74,
+    edge: 9.2,
+    pick: "BUF -7.0",
+    confidence: "high"
+  }
+];
+
+const ANGLES = [
+  ["Back home favorites", "62%"],
+  ["Unders in dome games", "68%"],
+  ["Fade short-rest teams", "71%"],
+  ["Divisional unders", "64%"],
+  ["Elite QB vs weak pass D", "69%"]
+];
+
+const PROBABILITIES = [
+  ["BUF", 74],
+  ["PHI", 72],
+  ["KC", 67],
+  ["BAL", 63],
+  ["TB", 61]
+];
+
+const COMPONENTS = [
+  ["Power Rating", 25, "blue"],
+  ["Recent Form", 20, "green"],
+  ["Elo", 20, "yellow"],
+  ["Matchup", 20, "red"],
+  ["Market", 15, "gray"]
+];
+
+function BrandDots() {
   return (
-    <div className={`banana-brand ${compact ? "compact" : ""}`}>
-      <div className="banana-mark" aria-hidden="true">
-        <svg viewBox="0 0 64 64">
-          <path d="M14 19c4 18 16 29 31 28 5 0 9-2 12-5-3 10-12 16-24 16C18 58 8 47 7 31c0-6 2-11 7-12Z" />
-          <path className="banana-tip" d="M13 18c2-4 5-7 9-8 1 3 1 6-1 9-3-1-5-1-8-1Z" />
-          <path className="banana-line" d="M18 23c5 12 14 19 27 19" />
-        </svg>
-      </div>
-      {!compact && (
-        <div>
-          <div className="brand-name">BANANA <span>BETS</span></div>
-          <div className="brand-sub">NFL MODEL + BETTING ANALYTICS</div>
-        </div>
-      )}
+    <div className="brand-dots">
+      <span className="brand-dot blue" />
+      <span className="brand-dot green" />
+      <span className="brand-dot red" />
+      <span className="brand-dot yellow" />
     </div>
   );
 }
 
-function Sidebar({ page, setPage, open, setOpen }) {
+function Sidebar({
+  activePage,
+  setActivePage,
+  mobileOpen,
+  setMobileOpen
+}) {
   return (
     <>
-      <aside className={`sidebar ${open ? "open" : ""}`}>
-        <div className="sidebar-top-row">
-          <BananaLogo />
-          <button className="icon-button sidebar-close" onClick={() => setOpen(false)} aria-label="Close menu">
-            <X size={20} />
-          </button>
+      <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
+        <button
+          className="sidebar-close"
+          onClick={() => setMobileOpen(false)}
+        >
+          <X size={21} />
+        </button>
+
+        <div className="brand">
+          <img
+            src="/banana-bets-logo.png"
+            alt="Banana Bets"
+            className="brand-logo"
+          />
+
+          <div className="brand-copy">
+            <div className="brand-name">
+              BANANA <strong>BETS</strong>
+            </div>
+
+            <BrandDots />
+
+            <div className="brand-subtitle">
+              NFL PREDICTIONS & ANALYTICS
+            </div>
+          </div>
         </div>
-        <div className="sidebar-tagline">Peel back the numbers.</div>
-        <nav className="nav-list">
-          {NAV.map((item) => {
+
+        <div className="nav-label">
+          MENU
+        </div>
+
+        <nav className="nav-menu">
+          {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = page === item.label;
+
             return (
               <button
-                key={item.label}
-                className={`nav-item ${active ? "active" : ""}`}
+                key={item.name}
+                className={`nav-button ${
+                  activePage === item.name
+                    ? "active"
+                    : ""
+                }`}
                 onClick={() => {
-                  setPage(item.label);
-                  setOpen(false);
+                  setActivePage(item.name);
+                  setMobileOpen(false);
                 }}
               >
                 <Icon size={18} />
-                <span>{item.label}</span>
-                {item.badge && <small>{item.badge}</small>}
+
+                <span>{item.name}</span>
+
+                {item.badge && (
+                  <span className="nav-badge">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
         </nav>
-        <div className="sidebar-status">
-          <span className="status-dot" />
-          <div>
-            <strong>Model Engine</strong>
-            <small>Ready for Sheets connection</small>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-controller-dots">
+            <span className="control-dot green" />
+            <span className="control-dot blue" />
+            <span className="control-dot red" />
+            <span className="control-dot yellow" />
           </div>
+
+          <p>
+            BET SMARTER.
+            <br />
+            PLAY HIGHER.
+          </p>
         </div>
       </aside>
-      {open && <button className="backdrop" onClick={() => setOpen(false)} aria-label="Close navigation" />}
+
+      {mobileOpen && (
+        <div
+          className="mobile-backdrop"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
     </>
   );
 }
 
-function Topbar({ season, setSeason, week, setWeek, setOpen, source }) {
+function Topbar({
+  season,
+  setSeason,
+  week,
+  setWeek,
+  setMobileOpen
+}) {
   return (
     <header className="topbar">
-      <button className="icon-button menu-button" onClick={() => setOpen(true)} aria-label="Open menu">
-        <Menu size={22} />
+      <button
+        className="mobile-menu"
+        onClick={() => setMobileOpen(true)}
+      >
+        <Menu size={23} />
       </button>
-      <div className="mobile-logo"><BananaLogo compact /></div>
-      <SelectBox label="Season" value={season} onChange={setSeason} options={["2026", "2025", "2024"]} />
-      <SelectBox label="Week" value={week} onChange={setWeek} options={Array.from({ length: 18 }, (_, i) => `Week ${i + 1}`)} week />
-      <div className="data-source-pill">
-        <span className={source === "live" ? "live-dot" : "demo-dot"} />
-        {source === "live" ? "Live model data" : "Demo data"}
+
+      <div className="selector">
+        <label>Season</label>
+
+        <div className="select-shell">
+          <select
+            value={season}
+            onChange={(e) =>
+              setSeason(e.target.value)
+            }
+          >
+            <option>2026</option>
+            <option>2025</option>
+            <option>2024</option>
+          </select>
+
+          <ChevronDown size={14} />
+        </div>
       </div>
-      <div className="search-box">
-        <Search size={17} />
-        <input placeholder="Search team, game, player..." />
+
+      <div className="selector week-selector">
+        <label>Week</label>
+
+        <div className="select-shell">
+          <select
+            value={week}
+            onChange={(e) =>
+              setWeek(e.target.value)
+            }
+          >
+            {Array.from(
+              { length: 18 },
+              (_, index) => (
+                <option key={index + 1}>
+                  Week {index + 1}
+                </option>
+              )
+            )}
+          </select>
+
+          <ChevronDown size={14} />
+        </div>
       </div>
-      <button className="profile"><User size={19} /></button>
+
+      <div className="next-games">
+        <span>Next Games</span>
+
+        <strong>
+          3d 12h 24m
+        </strong>
+      </div>
+
+      <div className="search-shell">
+        <Search size={18} />
+
+        <input
+          placeholder="Search teams, games, players..."
+        />
+      </div>
+
+      <button className="profile-button">
+        <User size={19} />
+      </button>
     </header>
   );
 }
 
-function SelectBox({ label, value, onChange, options, week = false }) {
+function Hero() {
   return (
-    <label className={`select-block ${week ? "week-select" : ""}`}>
-      <span>{label}</span>
-      <div className="select-shell">
-        <select value={value} onChange={(e) => onChange(e.target.value)}>
-          {options.map((option) => <option key={option}>{option}</option>)}
-        </select>
-        <ChevronDown size={14} />
-      </div>
-    </label>
-  );
-}
+    <section className="hero">
+      <div className="hero-left">
+        <div className="eyebrow">
+          BANANA BETS MODEL ENGINE
+        </div>
 
-function Hero({ data }) {
-  return (
-    <section className="hero-card">
-      <div className="hero-copy">
-        <div className="eyebrow"><Sparkles size={14} /> THIS WEEK'S MODEL</div>
-        <h1>Find the <span>edge.</span><br />Skip the noise.</h1>
-        <p>Power ratings, Elo, matchup data, simulation, market prices and EV — brought together in one weekly betting dashboard.</p>
+        <h1>
+          NFL PREDICTIONS
+        </h1>
+
+        <p>
+          Model-driven betting analytics
+          built to find value, not chase picks.
+        </p>
+
         <div className="hero-actions">
-          <button className="primary-button">View Best Bets</button>
-          <button className="ghost-button">Explore Games</button>
+          <button className="primary-button">
+            View This Week's Games
+          </button>
+
+          <button className="secondary-button">
+            How the Model Works
+          </button>
         </div>
       </div>
-      <div className="hero-stat">
-        <div className="peel-ring">
-          <div>
-            <strong>{data.games.length}</strong>
-            <span>Games</span>
+
+      <div className="hero-right">
+        <div className="controller-panel">
+          <div className="controller-chart">
+            <div className="chart-bar green-bar" />
+            <div className="chart-bar red-bar" />
+            <div className="chart-bar blue-bar" />
+          </div>
+
+          <div className="trend-arrow">
+            ↗
+          </div>
+
+          <div className="controller-buttons">
+            <span className="button-blue" />
+            <span className="button-green" />
+            <span className="button-red" />
+            <span className="button-yellow" />
           </div>
         </div>
-        <p>Current slate loaded</p>
       </div>
     </section>
   );
 }
 
-function MetricCards({ data }) {
-  const cards = [
-    { label: "ROI", value: data.metrics.roi, icon: TrendingUp, tone: "green" },
-    { label: "Win Rate", value: data.metrics.winRate, icon: Target },
-    { label: "Games Analyzed", value: data.metrics.gamesAnalyzed, icon: Database },
-    { label: "Last 10 Picks", value: data.metrics.recentRecord, icon: Trophy, tone: "yellow" }
-  ];
+function MetricCard({
+  icon,
+  value,
+  label,
+  accent
+}) {
   return (
-    <section className="metric-grid">
-      {cards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <article className="metric-card" key={card.label}>
-            <div className={`metric-icon ${card.tone || ""}`}><Icon size={22} /></div>
-            <div><span>{card.label}</span><strong>{card.value}</strong></div>
-          </article>
-        );
-      })}
+    <div className={`metric-card ${accent}`}>
+      <div className="metric-icon">
+        {icon}
+      </div>
+
+      <div>
+        <strong>
+          {value}
+        </strong>
+
+        <span>
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Metrics() {
+  return (
+    <section className="metrics">
+      <MetricCard
+        icon={<TrendingUp size={25} />}
+        value="+12.4%"
+        label="ROI"
+        accent="green-accent"
+      />
+
+      <MetricCard
+        icon={<Target size={25} />}
+        value="58.3%"
+        label="Win Rate"
+        accent="blue-accent"
+      />
+
+      <MetricCard
+        icon={<Database size={25} />}
+        value="1,287"
+        label="Games Analyzed"
+        accent="gray-accent"
+      />
+
+      <MetricCard
+        icon={<Activity size={25} />}
+        value="7-3"
+        label="Last 10 Picks"
+        accent="red-accent"
+      />
+
+      <MetricCard
+        icon={<Trophy size={25} />}
+        value="+8.2%"
+        label="Average Edge"
+        accent="yellow-accent"
+      />
     </section>
   );
 }
 
-function GamesTable({ games }) {
+function TeamBadge({ team }) {
   return (
-    <section className="panel games-panel">
+    <span className="team-badge">
+      {team}
+    </span>
+  );
+}
+
+function PredictionsTable() {
+  return (
+    <section className="panel predictions-panel">
       <div className="panel-header">
-        <div><span className="section-kicker">WEEKLY BOARD</span><h2>Game Predictions</h2></div>
-        <button className="text-button">View all →</button>
+        <div>
+          <span className="panel-kicker">
+            CURRENT SLATE
+          </span>
+
+          <h2>
+            Week 1 Predictions
+          </h2>
+        </div>
+
+        <button className="panel-link">
+          View All Games →
+        </button>
       </div>
+
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Matchup</th><th>Market</th><th>Model</th><th>Win Prob</th><th>Edge</th><th>EV</th><th>Confidence</th><th>Signal</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Matchup</th>
+              <th>Spread</th>
+              <th>Total</th>
+              <th>Moneyline</th>
+              <th>Win Prob</th>
+              <th>Edge</th>
+              <th>Pick</th>
+            </tr>
+          </thead>
+
           <tbody>
-            {games.map((game) => (
-              <tr key={game.id}>
-                <td>
-                  <div className="game-cell">
-                    <div className="team-pair"><TeamChip team={game.away} /><span>@</span><TeamChip team={game.home} /></div>
-                    <small>{game.date}</small>
-                  </div>
-                </td>
-                <td><strong>{game.marketSpread}</strong><small>{game.total} total</small></td>
-                <td><strong>{game.modelSpread}</strong><small>{game.moneyline}</small></td>
-                <td><Probability value={game.winProb} /></td>
-                <td className="positive">+{game.edge.toFixed(1)}%</td>
-                <td className={game.ev >= 3 ? "positive" : "muted-number"}>+{game.ev.toFixed(1)}%</td>
-                <td><Confidence value={game.confidence} /></td>
-                <td><Signal value={game.pick} /></td>
-              </tr>
-            ))}
+            {GAMES.map(
+              (game, index) => (
+                <tr key={index}>
+                  <td className="date-cell">
+                    {game.date}
+                  </td>
+
+                  <td>
+                    <div className="matchup">
+                      <TeamBadge
+                        team={game.away}
+                      />
+
+                      <span className="at">
+                        @
+                      </span>
+
+                      <TeamBadge
+                        team={game.home}
+                      />
+                    </div>
+                  </td>
+
+                  <td>
+                    {game.spread}
+                  </td>
+
+                  <td>
+                    {game.total}
+                  </td>
+
+                  <td>
+                    <div>
+                      {game.away}{" "}
+                      {game.awayML}
+                    </div>
+
+                    <div>
+                      {game.home}{" "}
+                      {game.homeML}
+                    </div>
+                  </td>
+
+                  <td>
+                    <span className="probability-pill">
+                      {game.probability}%
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className="edge-positive">
+                      +{game.edge.toFixed(1)}%
+                    </span>
+                  </td>
+
+                  <td>
+                    <button
+                      className={`pick-button ${
+                        game.pick === "PASS"
+                          ? "pass"
+                          : ""
+                      }`}
+                    >
+                      {game.pick}
+                    </button>
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </div>
@@ -221,150 +593,398 @@ function GamesTable({ games }) {
   );
 }
 
-function TeamChip({ team }) {
-  return <span className="team-chip">{team}</span>;
-}
+function ConfidenceCard() {
+  const counts = useMemo(
+    () => ({
+      high: GAMES.filter(
+        (game) =>
+          game.confidence === "high"
+      ).length,
 
-function Probability({ value }) {
-  return (
-    <div className="probability-cell">
-      <strong>{value}%</strong>
-      <div className="mini-track"><span style={{ width: `${value}%` }} /></div>
-    </div>
+      medium: GAMES.filter(
+        (game) =>
+          game.confidence === "medium"
+      ).length,
+
+      low: GAMES.filter(
+        (game) =>
+          game.confidence === "low"
+      ).length
+    }),
+    []
   );
-}
 
-function Confidence({ value }) {
-  const cls = value >= 75 ? "high" : value >= 60 ? "medium" : "low";
-  return <span className={`confidence ${cls}`}>{value}</span>;
-}
-
-function Signal({ value }) {
-  const normalized = value.toLowerCase();
-  const cls = normalized === "pass" ? "pass" : normalized === "watch" ? "watch" : "bet";
-  return <span className={`signal ${cls}`}>{value}</span>;
-}
-
-function BestEdges({ games }) {
-  const top = [...games].sort((a, b) => b.edge - a.edge).slice(0, 4);
   return (
     <section className="panel">
-      <div className="panel-header"><div><span className="section-kicker">QUICK VIEW</span><h2>Best Edges</h2></div></div>
-      <div className="edge-list">
-        {top.map((game, index) => (
-          <div className="edge-row" key={game.id}>
-            <span className="rank">{index + 1}</span>
-            <div><strong>{game.away} @ {game.home}</strong><small>{game.pick}</small></div>
-            <strong className="positive">+{game.edge.toFixed(1)}%</strong>
+      <div className="panel-header">
+        <div>
+          <span className="panel-kicker">
+            MODEL QUALITY
+          </span>
+
+          <h3>
+            Confidence
+          </h3>
+        </div>
+      </div>
+
+      <div className="confidence-content">
+        <div className="confidence-ring">
+          <div className="ring-center">
+            <strong>16</strong>
+
+            <span>
+              Games
+            </span>
           </div>
-        ))}
+        </div>
+
+        <div className="confidence-list">
+          <div>
+            <span className="legend blue" />
+            High
+            <strong>
+              {counts.high}
+            </strong>
+          </div>
+
+          <div>
+            <span className="legend green" />
+            Medium
+            <strong>
+              {counts.medium}
+            </strong>
+          </div>
+
+          <div>
+            <span className="legend gray" />
+            Low
+            <strong>
+              {counts.low}
+            </strong>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function Angles({ angles }) {
+function BettingAngles() {
   return (
     <section className="panel">
-      <div className="panel-header"><div><span className="section-kicker">HISTORICAL</span><h2>Angles</h2></div></div>
-      <div className="angle-list">
-        {angles.map((angle) => (
-          <div className="angle-row" key={angle.label}>
-            <div><strong>{angle.label}</strong><small>{angle.detail}</small></div>
-            <span>{angle.value}</span>
-          </div>
-        ))}
+      <div className="panel-header">
+        <div>
+          <span className="panel-kicker">
+            TRENDS
+          </span>
+
+          <h3>
+            Top Betting Angles
+          </h3>
+        </div>
+      </div>
+
+      <div className="angles">
+        {ANGLES.map(
+          ([label, percentage], index) => (
+            <div
+              className="angle-row"
+              key={label}
+            >
+              <span className="angle-number">
+                {index + 1}
+              </span>
+
+              <span className="angle-label">
+                {label}
+              </span>
+
+              <strong>
+                {percentage}
+              </strong>
+            </div>
+          )
+        )}
       </div>
     </section>
   );
 }
 
-function ModelMix({ components }) {
+function BetTracker() {
+  return (
+    <section className="panel bet-tracker">
+      <div className="tracker-icon">
+        <TrendingUp size={30} />
+      </div>
+
+      <div>
+        <h3>
+          My Bets
+        </h3>
+
+        <p>
+          Track units, wins, losses,
+          CLV and ROI.
+        </p>
+      </div>
+
+      <button className="tracker-button">
+        Open
+      </button>
+    </section>
+  );
+}
+
+function WinProbability() {
   return (
     <section className="panel">
-      <div className="panel-header"><div><span className="section-kicker">ENGINE</span><h2>Model Mix</h2></div><Activity size={19} /></div>
-      <div className="mix-list">
-        {components.map((item) => (
-          <div className="mix-row" key={item.label}>
-            <div><span>{item.label}</span><strong>{item.value}%</strong></div>
-            <div className="mix-track"><span style={{ width: `${item.value * 3.4}%` }} /></div>
-          </div>
-        ))}
+      <span className="panel-kicker">
+        PROJECTIONS
+      </span>
+
+      <h3>
+        Win Probability
+      </h3>
+
+      <div className="probability-list">
+        {PROBABILITIES.map(
+          ([team, value]) => (
+            <div
+              className="probability-row"
+              key={team}
+            >
+              <TeamBadge team={team} />
+
+              <div className="progress">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${value}%`
+                  }}
+                />
+              </div>
+
+              <strong>
+                {value}%
+              </strong>
+            </div>
+          )
+        )}
       </div>
-      <p className="panel-note">These are demo weights for the website layout. Your validated model weights will come from the workbook.</p>
     </section>
   );
 }
 
-function Placeholder({ page }) {
+function ModelComponents() {
   return (
-    <section className="placeholder panel">
-      <div className="placeholder-icon"><BrainCircuit size={40} /></div>
-      <h1>{page}</h1>
-      <p>The navigation and page shell are ready. This section will be connected to the matching Banana Bets output table when we build that module.</p>
+    <section className="panel">
+      <span className="panel-kicker">
+        ENGINE
+      </span>
+
+      <h3>
+        Model Components
+      </h3>
+
+      <div className="selected-game">
+        MIA @ LV
+      </div>
+
+      <div className="component-list">
+        {COMPONENTS.map(
+          ([name, value, color]) => (
+            <div
+              className="component-row"
+              key={name}
+            >
+              <span>
+                {name}
+              </span>
+
+              <div className="component-track">
+                <div
+                  className={`component-fill ${color}`}
+                  style={{
+                    width: `${value * 3.2}%`
+                  }}
+                />
+              </div>
+
+              <strong>
+                {value}%
+              </strong>
+            </div>
+          )
+        )}
+      </div>
     </section>
   );
 }
 
-function Dashboard({ data }) {
+function LatestInsights() {
+  return (
+    <section className="panel insights-panel">
+      <span className="panel-kicker">
+        MODEL NOTES
+      </span>
+
+      <h3>
+        Latest Insights
+      </h3>
+
+      <div className="insights">
+        <button>
+          <span className="insight-dot blue" />
+          Model weights and calibration
+        </button>
+
+        <button>
+          <span className="insight-dot green" />
+          Best values this week
+        </button>
+
+        <button>
+          <span className="insight-dot yellow" />
+          Market movement report
+        </button>
+
+        <button>
+          <span className="insight-dot red" />
+          High-risk disagreement games
+        </button>
+
+        <button>
+          <span className="insight-dot gray" />
+          Model performance history
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Dashboard() {
   return (
     <>
-      <Hero data={data} />
-      <MetricCards data={data} />
-      <div className="dashboard-grid">
-        <GamesTable games={data.games} />
-        <div className="right-rail"><BestEdges games={data.games} /><Angles angles={data.angles} /></div>
+      <Hero />
+
+      <Metrics />
+
+      <div className="main-dashboard">
+        <PredictionsTable />
+
+        <aside className="right-dashboard">
+          <ConfidenceCard />
+
+          <BettingAngles />
+
+          <BetTracker />
+        </aside>
       </div>
-      <div className="bottom-grid">
-        <ModelMix components={data.modelComponents} />
-        <section className="panel connection-panel">
-          <div><span className="section-kicker">NEXT CONNECTION</span><h2>Google Sheets → Banana Bets</h2></div>
-          <p>The app already has a separate API adapter. Once we expose clean output tables from Sheets, we only replace demo data — the design does not have to change.</p>
-          <div className="connection-flow"><span>Google Sheets</span><b>→</b><span>Apps Script / API</span><b>→</b><span>Banana Bets</span></div>
-        </section>
+
+      <div className="bottom-dashboard">
+        <WinProbability />
+
+        <ModelComponents />
+
+        <LatestInsights />
       </div>
     </>
   );
 }
 
+function Placeholder({
+  page
+}) {
+  return (
+    <section className="placeholder panel">
+      <img
+        src="/banana-bets-logo.png"
+        alt=""
+      />
+
+      <h1>
+        {page}
+      </h1>
+
+      <p>
+        This section is ready for its
+        Banana Bets data view. The
+        navigation already works, so we
+        can connect this page to the
+        appropriate Google Sheets output
+        later.
+      </p>
+    </section>
+  );
+}
+
 export default function App() {
-  const [page, setPage] = useState("Dashboard");
-  const [season, setSeason] = useState("2026");
-  const [week, setWeek] = useState("Week 1");
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [data, setData] = useState(demoDashboard);
-  const [source, setSource] = useState("demo");
+  const [
+    activePage,
+    setActivePage
+  ] = useState("Dashboard");
 
-  const numericWeek = useMemo(() => Number(week.replace("Week ", "")), [week]);
+  const [
+    mobileOpen,
+    setMobileOpen
+  ] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    getDashboard(Number(season), numericWeek)
-      .then((liveData) => {
-        if (!cancelled && liveData) {
-          setData(liveData);
-          setSource("live");
-        } else if (!cancelled) {
-          setData(demoDashboard);
-          setSource("demo");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setData(demoDashboard);
-          setSource("demo");
-        }
-      });
-    return () => { cancelled = true; };
-  }, [season, numericWeek]);
+  const [
+    season,
+    setSeason
+  ] = useState("2026");
+
+  const [
+    week,
+    setWeek
+  ] = useState("Week 1");
 
   return (
-    <div className="app-shell">
-      <Sidebar page={page} setPage={setPage} open={mobileOpen} setOpen={setMobileOpen} />
-      <div className="page-shell">
-        <Topbar season={season} setSeason={setSeason} week={week} setWeek={setWeek} setOpen={setMobileOpen} source={source} />
-        <main className="content">{page === "Dashboard" ? <Dashboard data={data} /> : <Placeholder page={page} />}</main>
-        <footer><BananaLogo compact /><span>Banana Bets • Model-driven NFL betting analytics</span><span className="footer-disclaimer">For informational use. Bet responsibly.</span></footer>
+    <div className="app">
+      <Sidebar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+      />
+
+      <div className="site">
+        <Topbar
+          season={season}
+          setSeason={setSeason}
+          week={week}
+          setWeek={setWeek}
+          setMobileOpen={setMobileOpen}
+        />
+
+        <main className="content">
+          {activePage ===
+          "Dashboard" ? (
+            <Dashboard />
+          ) : (
+            <Placeholder
+              page={activePage}
+            />
+          )}
+        </main>
+
+        <footer>
+          <div className="footer-brand">
+            <BrandDots />
+
+            <strong>
+              BANANA BETS
+            </strong>
+          </div>
+
+          <div>
+            Model Methodology
+            <span>•</span>
+            Disclaimer
+            <span>•</span>
+            Contact
+          </div>
+        </footer>
       </div>
     </div>
   );
