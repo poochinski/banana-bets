@@ -1,0 +1,11 @@
+{
+  admin off
+  auto_https off
+}
+
+:{$PORT:3000} {
+  encode gzip zstd
+  root * /srv
+  try_files {path} /index.html
+  file_server
+}
