@@ -1,4 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
 import {
   Home,
@@ -19,8 +23,19 @@ import {
   Target,
   CircleDollarSign,
   Activity,
-  X
+  X,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+  AlertTriangle,
+  Pin
 } from "lucide-react";
+
+import {
+  getApiHealth,
+  getBetFinder
+} from "./api";
+
 
 /* =========================================================
    NAVIGATION
@@ -39,151 +54,601 @@ const NAV_ITEMS = [
   { name: "Settings", icon: Settings }
 ];
 
-/* =========================================================
-   SAMPLE DATA
 
-   IMPORTANT:
-   This is temporary presentation data only.
-
-   Eventually these values will come from the Banana Bets
-   Google Sheets / Apps Script API.
-
-   Do not treat these as live betting recommendations.
-   ========================================================= */
-
-const GAMES = [
+const SNAPSHOT_OPTIONS = [
   {
-    date: "Thu 9/10",
-    away: "SF",
-    home: "LA",
-    spread: "LA -1.5",
-    total: "46.0",
-    awayML: "+110",
-    homeML: "-130",
-    probability: 56,
-    edge: 2.1,
-    pick: "PASS",
-    confidence: "low"
+    value: "auto",
+    label: "Auto"
   },
   {
-    date: "Sun 9/13",
-    away: "MIA",
-    home: "LV",
-    spread: "LV -2.5",
-    total: "44.0",
-    awayML: "+150",
-    homeML: "-170",
-    probability: 61,
-    edge: 8.4,
-    pick: "MIA ML",
-    confidence: "medium"
+    value: "confidence",
+    label: "Highest Confidence"
   },
   {
-    date: "Sun 9/13",
-    away: "BAL",
-    home: "IND",
-    spread: "BAL -3.0",
-    total: "45.5",
-    awayML: "-160",
-    homeML: "+135",
-    probability: 63,
-    edge: 5.7,
-    pick: "BAL -3.0",
-    confidence: "medium"
+    value: "topEv",
+    label: "Best EV"
   },
   {
-    date: "Sun 9/13",
-    away: "CHI",
-    home: "CAR",
-    spread: "CHI -2.5",
-    total: "42.5",
-    awayML: "-140",
-    homeML: "+120",
-    probability: 59,
-    edge: 4.1,
-    pick: "CHI ML",
-    confidence: "medium"
+    value: "edge",
+    label: "Biggest Edge"
   },
   {
-    date: "Sun 9/13",
-    away: "BUF",
-    home: "HOU",
-    spread: "BUF -3.5",
-    total: "47.0",
-    awayML: "-185",
-    homeML: "+160",
-    probability: 67,
-    edge: 6.9,
-    pick: "BUF -3.5",
-    confidence: "high"
+    value: "underdog",
+    label: "Best Underdog"
   },
   {
-    date: "Sun 9/13",
-    away: "TB",
-    home: "CIN",
-    spread: "CIN -1.0",
-    total: "46.5",
-    awayML: "+105",
-    homeML: "-125",
-    probability: 54,
-    edge: 1.8,
-    pick: "PASS",
-    confidence: "low"
-  },
-  {
-    date: "Sun 9/13",
-    away: "GB",
-    home: "MIN",
-    spread: "GB -2.0",
-    total: "45.0",
-    awayML: "-130",
-    homeML: "+110",
-    probability: 60,
-    edge: 4.9,
-    pick: "GB ML",
-    confidence: "medium"
-  },
-  {
-    date: "Mon 9/14",
-    away: "DEN",
-    home: "KC",
-    spread: "KC -4.5",
-    total: "48.5",
-    awayML: "+180",
-    homeML: "-215",
-    probability: 69,
-    edge: 7.2,
-    pick: "KC -4.5",
-    confidence: "high"
+    value: "favorite",
+    label: "Best Favorite"
   }
 ];
 
-const ANGLES = [
-  ["Home favorites", "62%"],
-  ["Divisional unders", "64%"],
-  ["Short-rest fade", "67%"],
-  ["High-volume RB overs", "69%"],
-  ["Elite QB vs weak pass D", "71%"]
-];
-
-const PROBABILITIES = [
-  ["KC", 69],
-  ["BUF", 67],
-  ["BAL", 63],
-  ["MIA", 61],
-  ["GB", 60]
-];
-
-const COMPONENTS = [
-  ["Power Rating", 25, "blue"],
-  ["Recent Form", 20, "green"],
-  ["Elo", 20, "yellow"],
-  ["Matchup", 20, "red"],
-  ["Market", 15, "gray"]
-];
 
 /* =========================================================
-   SMALL SHARED COMPONENTS
+   FORMATTERS
+   ========================================================= */
+
+function percent(value, digits = 1) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "—";
+  }
+
+  return `${(number * 100).toFixed(digits)}%`;
+}
+
+
+function signedPercent(value, digits = 1) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "—";
+  }
+
+  const formatted =
+    (number * 100).toFixed(digits);
+
+  return `${number >= 0 ? "+" : ""}${formatted}%`;
+}
+
+
+function signedPercentagePoints(value, digits = 1) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "—";
+  }
+
+  const formatted =
+    (number * 100).toFixed(digits);
+
+  return `${number >= 0 ? "+" : ""}${formatted} pp`;
+}
+
+
+function americanOdds(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "—";
+  }
+
+  const rounded =
+    Math.round(number);
+
+  return rounded > 0
+    ? `+${rounded}`
+    : String(rounded);
+}
+
+
+function displayBook(value) {
+  if (!value) {
+    return "Unknown book";
+  }
+
+  const aliases = {
+    williamhill: "William Hill",
+    fanduel: "FanDuel",
+    draftkings: "DraftKings",
+    matchbook: "Matchbook",
+    marathonbet: "Marathonbet",
+    betfair_ex_eu: "Betfair Exchange",
+    unibet_se: "Unibet",
+    unibet_nl: "Unibet"
+  };
+
+  return (
+    aliases[value] ||
+    String(value)
+      .replaceAll("_", " ")
+      .replace(
+        /\b\w/g,
+        (character) =>
+          character.toUpperCase()
+      )
+  );
+}
+
+
+function confidenceRank(value) {
+  switch (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+  ) {
+    case "HIGH":
+      return 3;
+
+    case "MEDIUM":
+      return 2;
+
+    case "LOW":
+      return 1;
+
+    default:
+      return 0;
+  }
+}
+
+
+/* =========================================================
+   SNAPSHOT RANKING
+   ========================================================= */
+
+function sortByEv(rows) {
+  return [...rows].sort(
+    (a, b) =>
+      Number(b.ev || 0) -
+      Number(a.ev || 0)
+  );
+}
+
+
+function sortByEdge(rows) {
+  return [...rows].sort(
+    (a, b) =>
+      Number(
+        b.edge_vs_market || 0
+      ) -
+      Number(
+        a.edge_vs_market || 0
+      )
+  );
+}
+
+
+function sortByConfidence(rows) {
+  return [...rows].sort(
+    (a, b) => {
+      const confidenceDifference =
+        confidenceRank(
+          b.confidence
+        ) -
+        confidenceRank(
+          a.confidence
+        );
+
+      if (
+        confidenceDifference !== 0
+      ) {
+        return confidenceDifference;
+      }
+
+      return (
+        Number(b.ev || 0) -
+        Number(a.ev || 0)
+      );
+    }
+  );
+}
+
+
+function rowsForSnapshotKind(
+  kind,
+  rows
+) {
+  switch (kind) {
+    case "confidence":
+      return sortByConfidence(
+        rows
+      );
+
+    case "topEv":
+      return sortByEv(
+        rows
+      );
+
+    case "edge":
+      return sortByEdge(
+        rows
+      );
+
+    case "underdog":
+      return sortByEv(
+        rows.filter(
+          (row) =>
+            Number(
+              row.american_odds
+            ) > 0
+        )
+      );
+
+    case "favorite":
+      return sortByEv(
+        rows.filter(
+          (row) =>
+            Number(
+              row.american_odds
+            ) < 0
+        )
+      );
+
+    default:
+      return sortByEv(
+        rows
+      );
+  }
+}
+
+
+function findCandidate(
+  kind,
+  rows,
+  excludedGames = new Set()
+) {
+  const ranked =
+    rowsForSnapshotKind(
+      kind,
+      rows
+    );
+
+  return (
+    ranked.find(
+      (row) =>
+        !excludedGames.has(
+          row.game_id
+        )
+    ) ||
+    null
+  );
+}
+
+
+function buildGlobalAutoPool(
+  rows,
+  excludedGames,
+  count
+) {
+  const results = [];
+
+  const usedGames =
+    new Set(excludedGames);
+
+  function addCandidate(
+    kind,
+    candidateRows = rows
+  ) {
+    if (
+      results.length >= count
+    ) {
+      return;
+    }
+
+    const candidate =
+      findCandidate(
+        kind,
+        candidateRows,
+        usedGames
+      );
+
+    if (!candidate) {
+      return;
+    }
+
+    results.push({
+      kind,
+      row: candidate
+    });
+
+    usedGames.add(
+      candidate.game_id
+    );
+  }
+
+
+  /*
+   * If ANY real HIGH-confidence model output exists,
+   * it gets first priority in AUTO mode.
+   *
+   * We choose the highest-EV HIGH-confidence row.
+   */
+  const highConfidence =
+    rows.filter(
+      (row) =>
+        confidenceRank(
+          row.confidence
+        ) === 3
+    );
+
+  if (
+    highConfidence.length > 0
+  ) {
+    addCandidate(
+      "confidence",
+      highConfidence
+    );
+  }
+
+
+  /*
+   * Then build a diverse group of useful signals.
+   */
+  addCandidate(
+    "topEv"
+  );
+
+  addCandidate(
+    "edge"
+  );
+
+  addCandidate(
+    "underdog"
+  );
+
+  addCandidate(
+    "favorite"
+  );
+
+
+  /*
+   * If duplicate games prevented us from
+   * reaching four cards, fill remaining
+   * positions using the next best EV games.
+   */
+  const evRows =
+    sortByEv(rows);
+
+  for (
+    const row of evRows
+  ) {
+    if (
+      results.length >= count
+    ) {
+      break;
+    }
+
+    if (
+      usedGames.has(
+        row.game_id
+      )
+    ) {
+      continue;
+    }
+
+    results.push({
+      kind: "topEv",
+      row
+    });
+
+    usedGames.add(
+      row.game_id
+    );
+  }
+
+  return results;
+}
+
+
+function buildGlobalModePool(
+  rows,
+  mode,
+  excludedGames,
+  count
+) {
+  if (
+    mode === "auto"
+  ) {
+    return buildGlobalAutoPool(
+      rows,
+      excludedGames,
+      count
+    );
+  }
+
+  const ranked =
+    rowsForSnapshotKind(
+      mode,
+      rows
+    );
+
+  const results = [];
+
+  const usedGames =
+    new Set(excludedGames);
+
+  for (
+    const row of ranked
+  ) {
+    if (
+      results.length >= count
+    ) {
+      break;
+    }
+
+    if (
+      usedGames.has(
+        row.game_id
+      )
+    ) {
+      continue;
+    }
+
+    results.push({
+      kind: mode,
+      row
+    });
+
+    usedGames.add(
+      row.game_id
+    );
+  }
+
+  return results;
+}
+
+
+function buildSnapshotSlots({
+  rows,
+  globalMode,
+  slotModes,
+  pinnedSlots
+}) {
+  const slots =
+    Array(4).fill(null);
+
+  const usedGames =
+    new Set();
+
+
+  /*
+   * 1. Resolve pinned cards first.
+   *
+   * Pin stores the actual game/team identity,
+   * but values still refresh from current API data.
+   */
+  pinnedSlots.forEach(
+    (pin, index) => {
+      if (!pin) {
+        return;
+      }
+
+      const row =
+        rows.find(
+          (candidate) =>
+            candidate.game_id ===
+              pin.game_id &&
+            candidate.team ===
+              pin.team
+        );
+
+      if (!row) {
+        return;
+      }
+
+      slots[index] = {
+        kind: pin.kind,
+        row,
+        pinned: true
+      };
+
+      usedGames.add(
+        row.game_id
+      );
+    }
+  );
+
+
+  /*
+   * 2. Resolve individual manual card modes.
+   */
+  slotModes.forEach(
+    (mode, index) => {
+      if (
+        slots[index] ||
+        mode === "auto"
+      ) {
+        return;
+      }
+
+      let candidate =
+        findCandidate(
+          mode,
+          rows,
+          usedGames
+        );
+
+      /*
+       * If every candidate from that category
+       * is already represented, still honor the
+       * user's manual choice.
+       */
+      if (!candidate) {
+        candidate =
+          findCandidate(
+            mode,
+            rows,
+            new Set()
+          );
+      }
+
+      if (!candidate) {
+        return;
+      }
+
+      slots[index] = {
+        kind: mode,
+        row: candidate,
+        pinned: false
+      };
+
+      usedGames.add(
+        candidate.game_id
+      );
+    }
+  );
+
+
+  /*
+   * 3. AUTO/global-mode fills the remaining slots.
+   */
+  const remaining =
+    slots.filter(
+      (slot) => !slot
+    ).length;
+
+  const autoPool =
+    buildGlobalModePool(
+      rows,
+      globalMode,
+      usedGames,
+      remaining
+    );
+
+  let poolIndex = 0;
+
+  for (
+    let index = 0;
+    index < slots.length;
+    index++
+  ) {
+    if (slots[index]) {
+      continue;
+    }
+
+    const candidate =
+      autoPool[
+        poolIndex
+      ];
+
+    poolIndex += 1;
+
+    if (!candidate) {
+      continue;
+    }
+
+    slots[index] = {
+      ...candidate,
+      pinned: false
+    };
+  }
+
+  return slots;
+}
+
+
+/* =========================================================
+   SHARED UI
    ========================================================= */
 
 function BrandDots() {
@@ -197,6 +662,7 @@ function BrandDots() {
   );
 }
 
+
 function TeamBadge({ team }) {
   return (
     <span className="team-badge">
@@ -204,6 +670,7 @@ function TeamBadge({ team }) {
     </span>
   );
 }
+
 
 /* =========================================================
    SIDEBAR
@@ -217,10 +684,18 @@ function Sidebar({
 }) {
   return (
     <>
-      <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
+      <aside
+        className={`sidebar ${
+          mobileOpen
+            ? "open"
+            : ""
+        }`}
+      >
         <button
           className="sidebar-close"
-          onClick={() => setMobileOpen(false)}
+          onClick={() =>
+            setMobileOpen(false)
+          }
           aria-label="Close menu"
         >
           <X size={21} />
@@ -237,7 +712,10 @@ function Sidebar({
 
           <div className="brand-copy">
             <div className="brand-name">
-              BANANA <strong>BETS</strong>
+              BANANA{" "}
+              <strong>
+                BETS
+              </strong>
             </div>
 
             <div className="brand-subtitle">
@@ -255,34 +733,49 @@ function Sidebar({
         </div>
 
         <nav className="nav-menu">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
+          {NAV_ITEMS.map(
+            (item) => {
+              const Icon =
+                item.icon;
 
-            return (
-              <button
-                key={item.name}
-                className={`nav-button ${
-                  activePage === item.name ? "active" : ""
-                }`}
-                onClick={() => {
-                  setActivePage(item.name);
-                  setMobileOpen(false);
-                }}
-              >
-                <Icon size={18} />
+              return (
+                <button
+                  key={
+                    item.name
+                  }
+                  className={`nav-button ${
+                    activePage ===
+                    item.name
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setActivePage(
+                      item.name
+                    );
 
-                <span>
-                  {item.name}
-                </span>
+                    setMobileOpen(
+                      false
+                    );
+                  }}
+                >
+                  <Icon
+                    size={18}
+                  />
 
-                {item.badge && (
-                  <span className="nav-badge">
-                    {item.badge}
+                  <span>
+                    {item.name}
                   </span>
-                )}
-              </button>
-            );
-          })}
+
+                  {item.badge && (
+                    <span className="nav-badge">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            }
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -304,15 +797,18 @@ function Sidebar({
       {mobileOpen && (
         <div
           className="mobile-backdrop"
-          onClick={() => setMobileOpen(false)}
+          onClick={() =>
+            setMobileOpen(false)
+          }
         />
       )}
     </>
   );
 }
 
+
 /* =========================================================
-   TOP BAR
+   TOPBAR
    ========================================================= */
 
 function Topbar({
@@ -320,13 +816,18 @@ function Topbar({
   setSeason,
   week,
   setWeek,
-  setMobileOpen
+  setMobileOpen,
+  apiState,
+  onRefresh,
+  lastUpdated
 }) {
   return (
     <header className="topbar">
       <button
         className="mobile-menu"
-        onClick={() => setMobileOpen(true)}
+        onClick={() =>
+          setMobileOpen(true)
+        }
         aria-label="Open menu"
       >
         <Menu size={22} />
@@ -339,7 +840,10 @@ function Topbar({
         />
 
         <span>
-          BANANA <strong>BETS</strong>
+          BANANA{" "}
+          <strong>
+            BETS
+          </strong>
         </span>
       </div>
 
@@ -351,13 +855,23 @@ function Topbar({
         <div className="select-shell">
           <select
             value={season}
-            onChange={(e) =>
-              setSeason(e.target.value)
+            onChange={(event) =>
+              setSeason(
+                event.target.value
+              )
             }
           >
-            <option>2026</option>
-            <option>2025</option>
-            <option>2024</option>
+            <option>
+              2026
+            </option>
+
+            <option>
+              2025
+            </option>
+
+            <option>
+              2024
+            </option>
           </select>
 
           <ChevronDown size={14} />
@@ -372,14 +886,20 @@ function Topbar({
         <div className="select-shell">
           <select
             value={week}
-            onChange={(e) =>
-              setWeek(e.target.value)
+            onChange={(event) =>
+              setWeek(
+                event.target.value
+              )
             }
           >
             {Array.from(
               { length: 18 },
               (_, index) => (
-                <option key={index + 1}>
+                <option
+                  key={
+                    index + 1
+                  }
+                >
                   Week {index + 1}
                 </option>
               )
@@ -390,29 +910,57 @@ function Topbar({
         </div>
       </div>
 
-      <div className="next-games">
-        <span>
-          Next Games
-        </span>
+      <button
+        className={`api-status ${
+          apiState
+        }`}
+        onClick={
+          onRefresh
+        }
+        title="Refresh model data"
+      >
+        {apiState ===
+        "connected" ? (
+          <Wifi size={15} />
+        ) : apiState ===
+          "loading" ? (
+          <RefreshCw
+            size={15}
+            className="spin"
+          />
+        ) : (
+          <WifiOff size={15} />
+        )}
 
-        <strong>
-          3d 12h 24m
-        </strong>
-      </div>
-
-      <div className="demo-status">
-        <span className="demo-status-dot" />
-
-        <div>
-          <strong>
-            SAMPLE DATA
-          </strong>
-
+        <div className="api-status-copy">
           <span>
-            Model connection pending
+            {apiState ===
+            "connected"
+              ? "MODEL LIVE"
+              : apiState ===
+                "loading"
+                ? "LOADING"
+                : "OFFLINE"}
           </span>
+
+          {lastUpdated &&
+            apiState ===
+              "connected" && (
+              <small>
+                Updated{" "}
+                {lastUpdated.toLocaleTimeString(
+                  [],
+                  {
+                    hour:
+                      "numeric",
+                    minute:
+                      "2-digit"
+                  }
+                )}
+              </small>
+            )}
         </div>
-      </div>
+      </button>
 
       <div className="search-shell">
         <Search size={18} />
@@ -432,51 +980,463 @@ function Topbar({
   );
 }
 
+
 /* =========================================================
-   HERO / WEEKLY COMMAND CENTER
+   SNAPSHOT CARD CONTENT
    ========================================================= */
 
-function HeroHighlightCard({
-  label,
-  title,
-  primary,
-  secondary,
-  meta,
-  accent,
-  icon
-}) {
-  return (
-    <div className={`highlight-card ${accent}`}>
-      <div className="highlight-card-header">
-        <span className="highlight-icon">
-          {icon}
-        </span>
+function snapshotCardDetails(
+  candidate
+) {
+  if (
+    !candidate ||
+    !candidate.row
+  ) {
+    return {
+      label:
+        "SNAPSHOT",
+      title:
+        "NO DATA",
+      primary:
+        "—",
+      secondary:
+        "No result available",
+      meta:
+        "",
+      accent:
+        "highlight-gray",
+      icon:
+        <Activity size={18} />
+    };
+  }
 
-        <span className="highlight-label">
-          {label}
-        </span>
+  const {
+    kind,
+    row
+  } = candidate;
+
+  const teamTitle =
+    `${row.team} MONEYLINE`;
+
+  switch (kind) {
+    case "confidence":
+      return {
+        label:
+          "HIGHEST CONFIDENCE",
+        title:
+          teamTitle,
+        primary:
+          String(
+            row.confidence ||
+            "—"
+          ).toUpperCase(),
+        secondary:
+          `${signedPercent(
+            row.ev
+          )} EV · Model ${percent(
+            row.model_win_prob
+          )}`,
+        meta:
+          `${americanOdds(
+            row.american_odds
+          )} · ${displayBook(
+            row.sportsbook
+          )}`,
+        accent:
+          confidenceRank(
+            row.confidence
+          ) === 3
+            ? "highlight-green"
+            : confidenceRank(
+                row.confidence
+              ) === 2
+              ? "highlight-blue"
+              : "highlight-gray",
+        icon:
+          <ShieldCheck size={18} />
+      };
+
+    case "edge":
+      return {
+        label:
+          "MODEL / MARKET EDGE",
+        title:
+          teamTitle,
+        primary:
+          signedPercentagePoints(
+            row.edge_vs_market
+          ),
+        secondary:
+          `Model ${percent(
+            row.model_win_prob
+          )} · Market ${percent(
+            row.market_win_prob
+          )}`,
+        meta:
+          `${americanOdds(
+            row.american_odds
+          )} · ${displayBook(
+            row.sportsbook
+          )}`,
+        accent:
+          "highlight-blue",
+        icon:
+          <BarChart3 size={18} />
+      };
+
+    case "underdog":
+      return {
+        label:
+          "UNDERDOG VALUE",
+        title:
+          teamTitle,
+        primary:
+          americanOdds(
+            row.american_odds
+          ),
+        secondary:
+          `${signedPercent(
+            row.ev
+          )} EV · Fair ${americanOdds(
+            row.fair_odds
+          )}`,
+        meta:
+          `${row.matchup} · ${displayBook(
+            row.sportsbook
+          )}`,
+        accent:
+          "highlight-green",
+        icon:
+          <TrendingUp size={18} />
+      };
+
+    case "favorite":
+      return {
+        label:
+          "FAVORITE VALUE",
+        title:
+          teamTitle,
+        primary:
+          americanOdds(
+            row.american_odds
+          ),
+        secondary:
+          `${signedPercent(
+            row.ev
+          )} EV · Fair ${americanOdds(
+            row.fair_odds
+          )}`,
+        meta:
+          `${row.matchup} · ${displayBook(
+            row.sportsbook
+          )}`,
+        accent:
+          "highlight-gray",
+        icon:
+          <Target size={18} />
+      };
+
+    case "topEv":
+    default:
+      return {
+        label:
+          "TOP MONEYLINE EV",
+        title:
+          teamTitle,
+        primary:
+          `${signedPercent(
+            row.ev
+          )} EV`,
+        secondary:
+          `Model ${percent(
+            row.model_win_prob
+          )} · Market ${percent(
+            row.market_win_prob
+          )}`,
+        meta:
+          `${americanOdds(
+            row.american_odds
+          )} · ${displayBook(
+            row.sportsbook
+          )}`,
+        accent:
+          "highlight-yellow",
+        icon:
+          <Trophy size={18} />
+      };
+  }
+}
+
+
+/* =========================================================
+   SNAPSHOT CARD
+   ========================================================= */
+
+function SnapshotCard({
+  candidate,
+  index,
+  slotMode,
+  setSlotMode,
+  pinned,
+  onTogglePin
+}) {
+  const details =
+    snapshotCardDetails(
+      candidate
+    );
+
+  return (
+    <div
+      className={`highlight-card ${
+        details.accent
+      } ${
+        pinned
+          ? "pinned"
+          : ""
+      }`}
+    >
+      <div className="highlight-card-header">
+        <div className="highlight-card-label-group">
+          <span className="highlight-icon">
+            {details.icon}
+          </span>
+
+          <span className="highlight-label">
+            {details.label}
+          </span>
+        </div>
+
+        <div className="card-controls">
+          <select
+            value={slotMode}
+            disabled={pinned}
+            onChange={(event) =>
+              setSlotMode(
+                index,
+                event.target.value
+              )
+            }
+            aria-label={`Snapshot card ${
+              index + 1
+            } mode`}
+          >
+            {SNAPSHOT_OPTIONS.map(
+              (option) => (
+                <option
+                  key={
+                    option.value
+                  }
+                  value={
+                    option.value
+                  }
+                >
+                  {option.label}
+                </option>
+              )
+            )}
+          </select>
+
+          <button
+            className={`pin-button ${
+              pinned
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              onTogglePin(
+                index,
+                candidate
+              )
+            }
+            disabled={
+              !candidate
+            }
+            title={
+              pinned
+                ? "Unpin this card"
+                : "Pin this bet"
+            }
+            aria-label={
+              pinned
+                ? "Unpin this snapshot card"
+                : "Pin this snapshot card"
+            }
+          >
+            <Pin
+              size={13}
+              fill={
+                pinned
+                  ? "currentColor"
+                  : "none"
+              }
+            />
+          </button>
+        </div>
       </div>
 
+      {pinned && (
+        <div className="pinned-label">
+          PINNED
+        </div>
+      )}
+
       <div className="highlight-title">
-        {title}
+        {details.title}
       </div>
 
       <div className="highlight-primary">
-        {primary}
+        {details.primary}
       </div>
 
       <div className="highlight-secondary">
-        {secondary}
+        {details.secondary}
       </div>
 
       <div className="highlight-meta">
-        {meta}
+        {details.meta}
       </div>
     </div>
   );
 }
 
-function Hero() {
+
+/* =========================================================
+   HERO / DYNAMIC SNAPSHOT
+   ========================================================= */
+
+function Hero({
+  rows,
+  season,
+  week,
+  loading,
+  error,
+  snapshotMode,
+  setSnapshotMode,
+  slotModes,
+  setSlotModes,
+  pinnedSlots,
+  setPinnedSlots
+}) {
+  const uniqueGames =
+    new Set(
+      rows.map(
+        (row) =>
+          row.game_id
+      )
+    ).size;
+
+  const qualified =
+    rows.filter(
+      (row) =>
+        row.meets_threshold ===
+        true
+    );
+
+  const highConfidenceCount =
+    rows.filter(
+      (row) =>
+        confidenceRank(
+          row.confidence
+        ) === 3
+    ).length;
+
+  const snapshotSlots =
+    useMemo(
+      () =>
+        buildSnapshotSlots({
+          rows,
+          globalMode:
+            snapshotMode,
+          slotModes,
+          pinnedSlots
+        }),
+      [
+        rows,
+        snapshotMode,
+        slotModes,
+        pinnedSlots
+      ]
+    );
+
+
+  function setSlotMode(
+    index,
+    mode
+  ) {
+    setSlotModes(
+      (current) => {
+        const next =
+          [...current];
+
+        next[index] =
+          mode;
+
+        return next;
+      }
+    );
+
+    /*
+     * Changing a card's mode also
+     * releases its specific pin.
+     */
+    setPinnedSlots(
+      (current) => {
+        const next =
+          [...current];
+
+        next[index] =
+          null;
+
+        return next;
+      }
+    );
+  }
+
+
+  function togglePin(
+    index,
+    candidate
+  ) {
+    setPinnedSlots(
+      (current) => {
+        const next =
+          [...current];
+
+        if (
+          next[index]
+        ) {
+          next[index] =
+            null;
+
+          return next;
+        }
+
+        if (
+          !candidate ||
+          !candidate.row
+        ) {
+          return next;
+        }
+
+        next[index] = {
+          game_id:
+            candidate.row
+              .game_id,
+
+          team:
+            candidate.row
+              .team,
+
+          kind:
+            candidate.kind
+        };
+
+        return next;
+      }
+    );
+  }
+
+
   return (
     <section className="hero">
       <div className="hero-heading-row">
@@ -486,7 +1446,7 @@ function Hero() {
           </div>
 
           <h1>
-            WEEK 1 SNAPSHOT
+            {week.toUpperCase()} SNAPSHOT
           </h1>
 
           <div className="hero-brand-message">
@@ -500,121 +1460,182 @@ function Hero() {
           </div>
         </div>
 
-        <div className="hero-week-status">
-          <span>
-            2026 REGULAR SEASON
-          </span>
+        <div className="hero-right-controls">
+          <div className="snapshot-mode-control">
+            <label>
+              SNAPSHOT VIEW
+            </label>
 
-          <strong>
-            16 GAMES
-          </strong>
+            <div className="snapshot-select-shell">
+              <select
+                value={
+                  snapshotMode
+                }
+                onChange={(event) =>
+                  setSnapshotMode(
+                    event.target
+                      .value
+                  )
+                }
+              >
+                {SNAPSHOT_OPTIONS.map(
+                  (option) => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  )
+                )}
+              </select>
 
-          <small>
-            Current slate
-          </small>
-        </div>
-      </div>
+              <ChevronDown
+                size={13}
+              />
+            </div>
 
-      <div className="hero-highlight-grid">
-        <HeroHighlightCard
-          label="BEST EDGE"
-          title="MIA MONEYLINE"
-          primary="+8.4% EV"
-          secondary="Model: 61% · Market: 51%"
-          meta="+150 sportsbook price"
-          accent="highlight-yellow"
-          icon={<Trophy size={18} />}
-        />
-
-        <HeroHighlightCard
-          label="PROP WATCH"
-          title="J. ALLEN O37.5 RUSH YDS"
-          primary="44.2 YDS"
-          secondary="Model projection"
-          meta="7.2 yards above line"
-          accent="highlight-blue"
-          icon={<Target size={18} />}
-        />
-
-        <HeroHighlightCard
-          label="TREND WATCH"
-          title="RUSH YARDS OVER"
-          primary="4 OF LAST 5"
-          secondary="Recent games above line"
-          meta="3 straight entering this week"
-          accent="highlight-green"
-          icon={<TrendingUp size={18} />}
-        />
-
-        <HeroHighlightCard
-          label="MARKET MOVE"
-          title="BUF SPREAD"
-          primary="-2.5 → -3.5"
-          secondary="Line moved one point"
-          meta="Watch price before kickoff"
-          accent="highlight-red"
-          icon={<Activity size={18} />}
-        />
-      </div>
-
-      <div className="model-alert">
-        <div className="model-alert-left">
-          <span className="model-alert-label">
-            MODEL VS MARKET
-          </span>
-
-          <strong>
-            MIA @ LV
-          </strong>
-
-          <span className="model-alert-description">
-            One of the largest model-market disagreements
-            on the current slate.
-          </span>
-        </div>
-
-        <div className="model-alert-numbers">
-          <div>
-            <span>
-              MODEL
-            </span>
-
-            <strong className="blue-text">
-              61%
-            </strong>
+            <small>
+              Auto updates with model data
+            </small>
           </div>
 
-          <div className="alert-divider" />
-
-          <div>
+          <div className="hero-week-status">
             <span>
-              MARKET
+              {season} REGULAR SEASON
             </span>
 
             <strong>
-              51%
+              {uniqueGames} GAMES
             </strong>
-          </div>
 
-          <div className="alert-divider" />
+            <div>
+              {rows.length} MONEYLINE SIDES
+            </div>
 
-          <div>
-            <span>
-              GAP
-            </span>
-
-            <strong className="green-text">
-              +10.0
-            </strong>
+            <small>
+              {qualified.length} meet EV threshold
+            </small>
           </div>
         </div>
+      </div>
+
+      {highConfidenceCount >
+        0 &&
+        snapshotMode ===
+          "auto" && (
+          <div className="high-confidence-notice">
+            <ShieldCheck
+              size={14}
+            />
+
+            <span>
+              {highConfidenceCount} HIGH-confidence{" "}
+              {highConfidenceCount ===
+              1
+                ? "result is"
+                : "results are"}{" "}
+              available. AUTO prioritizes at least one.
+            </span>
+          </div>
+        )}
+
+      {error && (
+        <div className="api-error-banner">
+          <AlertTriangle
+            size={17}
+          />
+
+          <span>
+            {error}
+          </span>
+        </div>
+      )}
+
+      <div className="hero-highlight-grid">
+        {loading ? (
+          Array.from({
+            length: 4
+          }).map(
+            (_, index) => (
+              <div
+                className="highlight-card highlight-gray loading-snapshot"
+                key={index}
+              >
+                <RefreshCw
+                  size={18}
+                  className="spin"
+                />
+
+                <strong>
+                  Loading model...
+                </strong>
+              </div>
+            )
+          )
+        ) : (
+          snapshotSlots.map(
+            (
+              candidate,
+              index
+            ) => (
+              <SnapshotCard
+                key={index}
+                candidate={
+                  candidate
+                }
+                index={
+                  index
+                }
+                slotMode={
+                  slotModes[
+                    index
+                  ]
+                }
+                setSlotMode={
+                  setSlotMode
+                }
+                pinned={
+                  Boolean(
+                    pinnedSlots[
+                      index
+                    ]
+                  )
+                }
+                onTogglePin={
+                  togglePin
+                }
+              />
+            )
+          )
+        )}
+      </div>
+
+      <div className="snapshot-help">
+        <span>
+          <strong>AUTO</strong>{" "}
+          selects the strongest useful,
+          non-duplicate signals.
+        </span>
+
+        <span>
+          Use a card menu to override one
+          slot, or pin a bet to keep it
+          visible while its live values
+          continue updating.
+        </span>
       </div>
     </section>
   );
 }
 
+
 /* =========================================================
-   METRICS
+   SUMMARY METRICS
    ========================================================= */
 
 function MetricCard({
@@ -624,7 +1645,11 @@ function MetricCard({
   accent
 }) {
   return (
-    <div className={`metric-card ${accent}`}>
+    <div
+      className={`metric-card ${
+        accent
+      }`}
+    >
       <div className="metric-icon">
         {icon}
       </div>
@@ -642,147 +1667,322 @@ function MetricCard({
   );
 }
 
-function Metrics() {
+
+function Metrics({
+  rows
+}) {
+  const positiveEv =
+    rows.filter(
+      (row) =>
+        Number(
+          row.ev
+        ) > 0
+    );
+
+  const threshold =
+    rows.filter(
+      (row) =>
+        row.meets_threshold ===
+        true
+    );
+
+  const bestEv =
+    rows.length
+      ? Math.max(
+          ...rows.map(
+            (row) =>
+              Number(
+                row.ev
+              )
+          )
+        )
+      : null;
+
+  const uniqueGames =
+    new Set(
+      rows.map(
+        (row) =>
+          row.game_id
+      )
+    ).size;
+
+  const highConfidence =
+    rows.filter(
+      (row) =>
+        confidenceRank(
+          row.confidence
+        ) === 3
+    ).length;
+
   return (
     <section className="metrics">
       <MetricCard
-        icon={<TrendingUp size={24} />}
-        value="+12.4%"
-        label="ROI"
+        icon={
+          <TrendingUp
+            size={24}
+          />
+        }
+        value={
+          bestEv !== null
+            ? signedPercent(
+                bestEv
+              )
+            : "—"
+        }
+        label="Best EV"
         accent="green-accent"
       />
 
       <MetricCard
-        icon={<Target size={24} />}
-        value="58.3%"
-        label="Win Rate"
+        icon={
+          <Target
+            size={24}
+          />
+        }
+        value={
+          threshold.length
+        }
+        label="Threshold Plays"
+        accent="yellow-accent"
+      />
+
+      <MetricCard
+        icon={
+          <Database
+            size={24}
+          />
+        }
+        value={
+          uniqueGames
+        }
+        label="Games Loaded"
         accent="blue-accent"
       />
 
       <MetricCard
-        icon={<Database size={24} />}
-        value="1,287"
-        label="Games Analyzed"
+        icon={
+          <Activity
+            size={24}
+          />
+        }
+        value={
+          positiveEv.length
+        }
+        label="Positive EV Sides"
         accent="gray-accent"
       />
 
       <MetricCard
-        icon={<Activity size={24} />}
-        value="7-3"
-        label="Last 10 Picks"
+        icon={
+          <ShieldCheck
+            size={24}
+          />
+        }
+        value={
+          highConfidence
+        }
+        label="High Confidence"
         accent="red-accent"
-      />
-
-      <MetricCard
-        icon={<Trophy size={24} />}
-        value="+8.2%"
-        label="Average Edge"
-        accent="yellow-accent"
       />
     </section>
   );
 }
 
+
 /* =========================================================
-   PREDICTIONS TABLE
+   BET FINDER TABLE
    ========================================================= */
 
-function PredictionsTable() {
+function PredictionsTable({
+  rows,
+  loading
+}) {
   return (
     <section className="panel predictions-panel">
       <div className="panel-header">
         <div>
           <span className="panel-kicker">
-            CURRENT SLATE
+            LIVE FROM 03_BET_FINDER
           </span>
 
           <h2>
-            Week 1 Predictions
+            Moneyline Bet Finder
           </h2>
         </div>
 
-        <button className="panel-link">
-          View All Games →
-        </button>
+        <span className="record-count">
+          {rows.length} sides
+        </span>
       </div>
 
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Matchup</th>
-              <th>Spread</th>
-              <th>Total</th>
-              <th>Moneyline</th>
-              <th>Win Prob</th>
-              <th>Edge</th>
-              <th>Pick</th>
+              <th>
+                Matchup
+              </th>
+
+              <th>
+                Team
+              </th>
+
+              <th>
+                Book
+              </th>
+
+              <th>
+                Odds
+              </th>
+
+              <th>
+                Fair
+              </th>
+
+              <th>
+                Model
+              </th>
+
+              <th>
+                Market
+              </th>
+
+              <th>
+                Edge (PP)
+              </th>
+
+              <th>
+                EV
+              </th>
+
+              <th>
+                Conf.
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {GAMES.map(
-              (game, index) => (
-                <tr key={index}>
-                  <td className="date-cell">
-                    {game.date}
-                  </td>
+            {loading ? (
+              <tr>
+                <td
+                  colSpan="10"
+                  className="loading-cell"
+                >
+                  Loading real Banana Bets model data...
+                </td>
+              </tr>
+            ) : rows.length ===
+              0 ? (
+              <tr>
+                <td
+                  colSpan="10"
+                  className="loading-cell"
+                >
+                  No Bet Finder rows were returned for this season and week.
+                </td>
+              </tr>
+            ) : (
+              rows.map(
+                (row) => (
+                  <tr
+                    key={`${row.game_id}-${row.team}`}
+                    className={
+                      row.meets_threshold
+                        ? "threshold-row"
+                        : ""
+                    }
+                  >
+                    <td>
+                      <strong>
+                        {row.matchup}
+                      </strong>
+                    </td>
 
-                  <td>
-                    <div className="matchup">
-                      <TeamBadge team={game.away} />
+                    <td>
+                      <TeamBadge
+                        team={
+                          row.team
+                        }
+                      />
+                    </td>
 
-                      <span className="at">
-                        @
+                    <td className="book-cell">
+                      {displayBook(
+                        row.sportsbook
+                      )}
+                    </td>
+
+                    <td className="odds-cell">
+                      {americanOdds(
+                        row.american_odds
+                      )}
+                    </td>
+
+                    <td>
+                      {americanOdds(
+                        row.fair_odds
+                      )}
+                    </td>
+
+                    <td>
+                      <span className="probability-pill">
+                        {percent(
+                          row.model_win_prob
+                        )}
                       </span>
+                    </td>
 
-                      <TeamBadge team={game.home} />
-                    </div>
-                  </td>
+                    <td>
+                      {percent(
+                        row.market_win_prob
+                      )}
+                    </td>
 
-                  <td>
-                    {game.spread}
-                  </td>
+                    <td>
+                      <span
+                        className={
+                          Number(
+                            row.edge_vs_market
+                          ) >= 0
+                            ? "edge-positive"
+                            : "edge-negative"
+                        }
+                      >
+                        {signedPercentagePoints(
+                          row.edge_vs_market
+                        )}
+                      </span>
+                    </td>
 
-                  <td>
-                    {game.total}
-                  </td>
+                    <td>
+                      <span
+                        className={
+                          Number(
+                            row.ev
+                          ) >= 0
+                            ? "ev-positive"
+                            : "ev-negative"
+                        }
+                      >
+                        {signedPercent(
+                          row.ev
+                        )}
+                      </span>
+                    </td>
 
-                  <td>
-                    <div>
-                      {game.away} {game.awayML}
-                    </div>
-
-                    <div>
-                      {game.home} {game.homeML}
-                    </div>
-                  </td>
-
-                  <td>
-                    <span className="probability-pill">
-                      {game.probability}%
-                    </span>
-                  </td>
-
-                  <td>
-                    <span className="edge-positive">
-                      +{game.edge.toFixed(1)}%
-                    </span>
-                  </td>
-
-                  <td>
-                    <button
-                      className={`pick-button ${
-                        game.pick === "PASS"
-                          ? "pass"
-                          : ""
-                      }`}
-                    >
-                      {game.pick}
-                    </button>
-                  </td>
-                </tr>
+                    <td>
+                      <span
+                        className={`confidence-badge ${
+                          String(
+                            row.confidence
+                          ).toLowerCase()
+                        }`}
+                      >
+                        {row.confidence}
+                      </span>
+                    </td>
+                  </tr>
+                )
               )
             )}
           </tbody>
@@ -792,347 +1992,358 @@ function PredictionsTable() {
   );
 }
 
-/* =========================================================
-   CONFIDENCE CARD
-   ========================================================= */
-
-function ConfidenceCard() {
-  const counts = useMemo(
-    () => ({
-      high: GAMES.filter(
-        (game) => game.confidence === "high"
-      ).length,
-
-      medium: GAMES.filter(
-        (game) => game.confidence === "medium"
-      ).length,
-
-      low: GAMES.filter(
-        (game) => game.confidence === "low"
-      ).length
-    }),
-    []
-  );
-
-  return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <span className="panel-kicker">
-            MODEL QUALITY
-          </span>
-
-          <h3>
-            Confidence
-          </h3>
-        </div>
-      </div>
-
-      <div className="confidence-content">
-        <div className="confidence-ring">
-          <div className="ring-center">
-            <strong>
-              {GAMES.length}
-            </strong>
-
-            <span>
-              Featured
-            </span>
-          </div>
-        </div>
-
-        <div className="confidence-list">
-          <div>
-            <span className="legend blue" />
-
-            High
-
-            <strong>
-              {counts.high}
-            </strong>
-          </div>
-
-          <div>
-            <span className="legend green" />
-
-            Medium
-
-            <strong>
-              {counts.medium}
-            </strong>
-          </div>
-
-          <div>
-            <span className="legend gray" />
-
-            Low
-
-            <strong>
-              {counts.low}
-            </strong>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* =========================================================
-   BETTING ANGLES
+   MODEL STATUS
    ========================================================= */
 
-function BettingAngles() {
-  return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <span className="panel-kicker">
-            TRENDS
-          </span>
-
-          <h3>
-            Top Betting Angles
-          </h3>
-        </div>
-      </div>
-
-      <div className="angles">
-        {ANGLES.map(
-          ([label, percentage], index) => (
-            <div
-              className="angle-row"
-              key={label}
-            >
-              <span className="angle-number">
-                {index + 1}
-              </span>
-
-              <span className="angle-label">
-                {label}
-              </span>
-
-              <strong>
-                {percentage}
-              </strong>
-            </div>
+function ModelStatus({
+  rows
+}) {
+  const gamesUsed =
+    rows.length
+      ? Math.min(
+          ...rows.map(
+            (row) =>
+              Number(
+                row.games_used ||
+                0
+              )
           )
+        )
+      : 0;
+
+  const confidenceValues =
+    rows.reduce(
+      (
+        result,
+        row
+      ) => {
+        const key =
+          String(
+            row.confidence ||
+            "UNKNOWN"
+          ).toUpperCase();
+
+        result[key] =
+          (
+            result[key] ||
+            0
+          ) + 1;
+
+        return result;
+      },
+      {}
+    );
+
+  return (
+    <section className="panel">
+      <span className="panel-kicker">
+        CURRENT MODEL STATE
+      </span>
+
+      <h3>
+        Confidence
+      </h3>
+
+      <div className="current-confidence">
+        <strong>
+          {gamesUsed}
+        </strong>
+
+        <span>
+          current-season games used
+        </span>
+      </div>
+
+      <div className="confidence-summary">
+        <div>
+          <span>
+            LOW
+          </span>
+
+          <strong>
+            {confidenceValues.LOW ||
+              0}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            MEDIUM
+          </span>
+
+          <strong>
+            {confidenceValues.MEDIUM ||
+              0}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            HIGH
+          </span>
+
+          <strong>
+            {confidenceValues.HIGH ||
+              0}
+          </strong>
+        </div>
+      </div>
+
+      {gamesUsed ===
+        0 &&
+        rows.length >
+          0 && (
+          <div className="season-warning">
+            Week 1 currently contains no
+            current-season game sample.
+            Confidence is intentionally
+            low.
+          </div>
         )}
+    </section>
+  );
+}
+
+
+/* =========================================================
+   TOP VALUES
+   ========================================================= */
+
+function TopValues({
+  rows
+}) {
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <span className="panel-kicker">
+            MONEYLINE
+          </span>
+
+          <h3>
+            Top Model Values
+          </h3>
+        </div>
+      </div>
+
+      <div className="top-values-list">
+        {sortByEv(rows)
+          .slice(
+            0,
+            6
+          )
+          .map(
+            (
+              row,
+              index
+            ) => (
+              <div
+                className="top-value-row"
+                key={`${row.game_id}-${row.team}`}
+              >
+                <span className="value-rank">
+                  {index + 1}
+                </span>
+
+                <div>
+                  <strong>
+                    {row.team} ML
+                  </strong>
+
+                  <span>
+                    {row.matchup}
+                  </span>
+                </div>
+
+                <div className="value-price">
+                  <strong>
+                    {americanOdds(
+                      row.american_odds
+                    )}
+                  </strong>
+
+                  <span>
+                    {signedPercent(
+                      row.ev
+                    )}{" "}
+                    EV
+                  </span>
+                </div>
+              </div>
+            )
+          )}
       </div>
     </section>
   );
 }
 
+
 /* =========================================================
-   BET TRACKER
+   DATA SOURCE
    ========================================================= */
 
-function BetTracker() {
+function DataSourceCard({
+  health,
+  lastUpdated
+}) {
   return (
-    <section className="panel bet-tracker">
-      <div className="tracker-icon">
-        <TrendingUp size={27} />
+    <section className="panel data-source-card">
+      <div className="data-source-icon">
+        <Database
+          size={26}
+        />
       </div>
 
       <div>
+        <span className="panel-kicker">
+          DATA CONNECTION
+        </span>
+
         <h3>
-          My Bets
+          Google Sheets
         </h3>
 
         <p>
-          Track units, results, CLV and ROI.
+          {health
+            ? `${health.spreadsheet} · ${
+                health
+                  .bet_finder_sheet
+                  ?.rows ??
+                0
+              } Bet Finder rows`
+            : "Banana Bets Apps Script API"}
         </p>
-      </div>
 
-      <button className="tracker-button">
-        Open
-      </button>
-    </section>
-  );
-}
-
-/* =========================================================
-   WIN PROBABILITY
-   ========================================================= */
-
-function WinProbability() {
-  return (
-    <section className="panel">
-      <span className="panel-kicker">
-        PROJECTIONS
-      </span>
-
-      <h3>
-        Win Probability
-      </h3>
-
-      <div className="probability-list">
-        {PROBABILITIES.map(
-          ([team, value]) => (
-            <div
-              className="probability-row"
-              key={team}
-            >
-              <TeamBadge team={team} />
-
-              <div className="progress">
-                <div
-                  className="progress-fill"
-                  style={{
-                    width: `${value}%`
-                  }}
-                />
-              </div>
-
-              <strong>
-                {value}%
-              </strong>
-            </div>
-          )
+        {lastUpdated && (
+          <small>
+            Last loaded{" "}
+            {lastUpdated.toLocaleTimeString(
+              [],
+              {
+                hour:
+                  "numeric",
+                minute:
+                  "2-digit"
+              }
+            )}
+          </small>
         )}
       </div>
     </section>
   );
 }
 
-/* =========================================================
-   MODEL COMPONENTS
-   ========================================================= */
-
-function ModelComponents() {
-  return (
-    <section className="panel">
-      <span className="panel-kicker">
-        ENGINE
-      </span>
-
-      <h3>
-        Model Components
-      </h3>
-
-      <div className="selected-game">
-        MIA @ LV
-      </div>
-
-      <div className="component-list">
-        {COMPONENTS.map(
-          ([name, value, color]) => (
-            <div
-              className="component-row"
-              key={name}
-            >
-              <span>
-                {name}
-              </span>
-
-              <div className="component-track">
-                <div
-                  className={`component-fill ${color}`}
-                  style={{
-                    width: `${value * 3.2}%`
-                  }}
-                />
-              </div>
-
-              <strong>
-                {value}%
-              </strong>
-            </div>
-          )
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* =========================================================
-   INSIGHTS
-   ========================================================= */
-
-function LatestInsights() {
-  return (
-    <section className="panel insights-panel">
-      <span className="panel-kicker">
-        MODEL NOTES
-      </span>
-
-      <h3>
-        Latest Insights
-      </h3>
-
-      <div className="insights">
-        <button>
-          <span className="insight-dot blue" />
-
-          Model weights and calibration
-        </button>
-
-        <button>
-          <span className="insight-dot green" />
-
-          Best values this week
-        </button>
-
-        <button>
-          <span className="insight-dot yellow" />
-
-          Market movement report
-        </button>
-
-        <button>
-          <span className="insight-dot red" />
-
-          High-risk disagreement games
-        </button>
-
-        <button>
-          <span className="insight-dot gray" />
-
-          Model performance history
-        </button>
-      </div>
-    </section>
-  );
-}
 
 /* =========================================================
    DASHBOARD
    ========================================================= */
 
-function Dashboard() {
+function Dashboard({
+  rows,
+  loading,
+  error,
+  health,
+  season,
+  week,
+  lastUpdated,
+  snapshotMode,
+  setSnapshotMode,
+  slotModes,
+  setSlotModes,
+  pinnedSlots,
+  setPinnedSlots
+}) {
   return (
     <>
-      <Hero />
+      <Hero
+        rows={
+          rows
+        }
+        season={
+          season
+        }
+        week={
+          week
+        }
+        loading={
+          loading
+        }
+        error={
+          error
+        }
+        snapshotMode={
+          snapshotMode
+        }
+        setSnapshotMode={
+          setSnapshotMode
+        }
+        slotModes={
+          slotModes
+        }
+        setSlotModes={
+          setSlotModes
+        }
+        pinnedSlots={
+          pinnedSlots
+        }
+        setPinnedSlots={
+          setPinnedSlots
+        }
+      />
 
-      <Metrics />
+      <Metrics
+        rows={
+          rows
+        }
+      />
 
       <div className="main-dashboard">
-        <PredictionsTable />
+        <PredictionsTable
+          rows={
+            rows
+          }
+          loading={
+            loading
+          }
+        />
 
         <aside className="right-dashboard">
-          <ConfidenceCard />
+          <ModelStatus
+            rows={
+              rows
+            }
+          />
 
-          <BettingAngles />
+          <TopValues
+            rows={
+              rows
+            }
+          />
 
-          <BetTracker />
+          <DataSourceCard
+            health={
+              health
+            }
+            lastUpdated={
+              lastUpdated
+            }
+          />
         </aside>
-      </div>
-
-      <div className="bottom-dashboard">
-        <WinProbability />
-
-        <ModelComponents />
-
-        <LatestInsights />
       </div>
     </>
   );
 }
 
+
 /* =========================================================
    PLACEHOLDER PAGES
    ========================================================= */
 
-function Placeholder({ page }) {
+function Placeholder({
+  page
+}) {
   return (
     <section className="placeholder panel">
       <img
@@ -1145,14 +2356,15 @@ function Placeholder({ page }) {
       </h1>
 
       <p>
-        This section is ready for its Banana Bets data
-        view. Navigation already works, so this page can
-        later connect directly to the appropriate model
-        output.
+        This section has not been
+        connected yet. The dashboard is
+        currently using the live Banana
+        Bets model API.
       </p>
     </section>
   );
 }
+
 
 /* =========================================================
    APP
@@ -1162,46 +2374,370 @@ export default function App() {
   const [
     activePage,
     setActivePage
-  ] = useState("Dashboard");
+  ] =
+    useState(
+      "Dashboard"
+    );
 
   const [
     mobileOpen,
     setMobileOpen
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     season,
     setSeason
-  ] = useState("2026");
+  ] =
+    useState("2026");
 
   const [
     week,
     setWeek
-  ] = useState("Week 1");
+  ] =
+    useState(
+      "Week 1"
+    );
+
+  const [
+    rows,
+    setRows
+  ] =
+    useState([]);
+
+  const [
+    health,
+    setHealth
+  ] =
+    useState(null);
+
+  const [
+    loading,
+    setLoading
+  ] =
+    useState(true);
+
+  const [
+    error,
+    setError
+  ] =
+    useState(null);
+
+  const [
+    apiState,
+    setApiState
+  ] =
+    useState(
+      "loading"
+    );
+
+  const [
+    refreshKey,
+    setRefreshKey
+  ] =
+    useState(0);
+
+  const [
+    lastUpdated,
+    setLastUpdated
+  ] =
+    useState(null);
+
+
+  /*
+   * SNAPSHOT CONTROLS
+   */
+  const [
+    snapshotMode,
+    setSnapshotMode
+  ] =
+    useState("auto");
+
+  const [
+    slotModes,
+    setSlotModes
+  ] =
+    useState([
+      "auto",
+      "auto",
+      "auto",
+      "auto"
+    ]);
+
+  const [
+    pinnedSlots,
+    setPinnedSlots
+  ] =
+    useState([
+      null,
+      null,
+      null,
+      null
+    ]);
+
+
+  const weekNumber =
+    useMemo(
+      () => {
+        const match =
+          week.match(
+            /\d+/
+          );
+
+        return match
+          ? Number(
+              match[0]
+            )
+          : 1;
+      },
+      [
+        week
+      ]
+    );
+
+
+  /*
+   * A pin refers to a specific game/team.
+   * Clear pins when the user switches weeks
+   * or seasons so stale bets cannot remain.
+   */
+  useEffect(
+    () => {
+      setPinnedSlots([
+        null,
+        null,
+        null,
+        null
+      ]);
+    },
+    [
+      season,
+      weekNumber
+    ]
+  );
+
+
+  useEffect(
+    () => {
+      let cancelled =
+        false;
+
+      async function loadData() {
+        setLoading(
+          true
+        );
+
+        setError(
+          null
+        );
+
+        setApiState(
+          "loading"
+        );
+
+        try {
+          const [
+            healthResponse,
+            betsResponse
+          ] =
+            await Promise.all([
+              getApiHealth(),
+
+              getBetFinder({
+                season:
+                  Number(
+                    season
+                  ),
+
+                week:
+                  weekNumber,
+
+                market:
+                  "moneyline",
+
+                limit:
+                  500
+              })
+            ]);
+
+          if (
+            cancelled
+          ) {
+            return;
+          }
+
+          setHealth(
+            healthResponse
+          );
+
+          setRows(
+            Array.isArray(
+              betsResponse.rows
+            )
+              ? betsResponse.rows
+              : []
+          );
+
+          setApiState(
+            "connected"
+          );
+
+          setLastUpdated(
+            new Date()
+          );
+        } catch (
+          loadError
+        ) {
+          if (
+            cancelled
+          ) {
+            return;
+          }
+
+          console.error(
+            "Banana Bets API error:",
+            loadError
+          );
+
+          setRows([]);
+
+          setApiState(
+            "offline"
+          );
+
+          setError(
+            loadError.message ||
+            "Could not load model data."
+          );
+        } finally {
+          if (
+            !cancelled
+          ) {
+            setLoading(
+              false
+            );
+          }
+        }
+      }
+
+      loadData();
+
+      return () => {
+        cancelled =
+          true;
+      };
+    },
+    [
+      season,
+      weekNumber,
+      refreshKey
+    ]
+  );
+
+
+  function refreshModel() {
+    setRefreshKey(
+      (current) =>
+        current + 1
+    );
+  }
+
 
   return (
     <div className="app">
       <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-        mobileOpen={mobileOpen}
-        setMobileOpen={setMobileOpen}
+        activePage={
+          activePage
+        }
+        setActivePage={
+          setActivePage
+        }
+        mobileOpen={
+          mobileOpen
+        }
+        setMobileOpen={
+          setMobileOpen
+        }
       />
 
       <div className="site">
         <Topbar
-          season={season}
-          setSeason={setSeason}
-          week={week}
-          setWeek={setWeek}
-          setMobileOpen={setMobileOpen}
+          season={
+            season
+          }
+          setSeason={
+            setSeason
+          }
+          week={
+            week
+          }
+          setWeek={
+            setWeek
+          }
+          setMobileOpen={
+            setMobileOpen
+          }
+          apiState={
+            apiState
+          }
+          onRefresh={
+            refreshModel
+          }
+          lastUpdated={
+            lastUpdated
+          }
         />
 
         <main className="content">
-          {activePage === "Dashboard" ? (
-            <Dashboard />
+          {activePage ===
+          "Dashboard" ? (
+            <Dashboard
+              rows={
+                rows
+              }
+              loading={
+                loading
+              }
+              error={
+                error
+              }
+              health={
+                health
+              }
+              season={
+                season
+              }
+              week={
+                week
+              }
+              lastUpdated={
+                lastUpdated
+              }
+              snapshotMode={
+                snapshotMode
+              }
+              setSnapshotMode={
+                setSnapshotMode
+              }
+              slotModes={
+                slotModes
+              }
+              setSlotModes={
+                setSlotModes
+              }
+              pinnedSlots={
+                pinnedSlots
+              }
+              setPinnedSlots={
+                setPinnedSlots
+              }
+            />
           ) : (
-            <Placeholder page={activePage} />
+            <Placeholder
+              page={
+                activePage
+              }
+            />
           )}
         </main>
 
@@ -1215,11 +2751,11 @@ export default function App() {
           </div>
 
           <div>
-            Model
+            Google Sheets
             <span>•</span>
-            Data
+            Apps Script
             <span>•</span>
-            Bet Log
+            React
           </div>
         </footer>
       </div>
