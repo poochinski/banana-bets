@@ -35,6 +35,14 @@ const NAV_ITEMS = [
   { name: "Settings", icon: Settings }
 ];
 
+/*
+  SAMPLE / DEMO DATA ONLY
+
+  This will eventually be replaced by data coming from the
+  Banana Bets Google Sheets / Apps Script API.
+
+  Do not treat these numbers as live model predictions.
+*/
 const GAMES = [
   {
     date: "Thu 9/10",
@@ -117,27 +125,27 @@ const GAMES = [
   {
     date: "Sun 9/13",
     away: "ATL",
-    home: "TB",
-    spread: "TB -3.5",
+    home: "PIT",
+    spread: "PIT -3.5",
     total: "45.0",
     awayML: "+150",
     homeML: "-175",
     probability: 61,
     edge: 4.9,
-    pick: "TB -3.5",
+    pick: "PIT -3.5",
     confidence: "medium"
   },
   {
     date: "Mon 9/14",
-    away: "NYJ",
-    home: "BUF",
-    spread: "BUF -7.0",
+    away: "DEN",
+    home: "KC",
+    spread: "KC -7.0",
     total: "48.5",
     awayML: "+250",
     homeML: "-300",
     probability: 74,
     edge: 9.2,
-    pick: "BUF -7.0",
+    pick: "KC -7.0",
     confidence: "high"
   }
 ];
@@ -151,11 +159,11 @@ const ANGLES = [
 ];
 
 const PROBABILITIES = [
-  ["BUF", 74],
+  ["KC", 74],
   ["PHI", 72],
-  ["KC", 67],
-  ["BAL", 63],
-  ["TB", 61]
+  ["BAL", 67],
+  ["PIT", 63],
+  ["LV", 61]
 ];
 
 const COMPONENTS = [
@@ -189,26 +197,31 @@ function Sidebar({
         <button
           className="sidebar-close"
           onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
         >
           <X size={21} />
         </button>
 
         <div className="brand">
-          <img
-            src="/banana-bets-logo.png"
-            alt="Banana Bets"
-            className="brand-logo"
-          />
+          <div className="brand-logo-plate">
+            <img
+              src="/banana-bets-logo.png"
+              alt="Banana Bets"
+              className="brand-logo"
+            />
+          </div>
 
           <div className="brand-copy">
             <div className="brand-name">
               BANANA <strong>BETS</strong>
             </div>
 
-            <BrandDots />
-
             <div className="brand-subtitle">
-              NFL PREDICTIONS & ANALYTICS
+              NFL MODEL + BETTING ANALYTICS
+            </div>
+
+            <div className="brand-tagline">
+              Peel back the numbers.
             </div>
           </div>
         </div>
@@ -257,9 +270,9 @@ function Sidebar({
           </div>
 
           <p>
-            BET SMARTER.
+            NFL MODEL
             <br />
-            PLAY HIGHER.
+            + BETTING ANALYTICS
           </p>
         </div>
       </aside>
@@ -286,9 +299,21 @@ function Topbar({
       <button
         className="mobile-menu"
         onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
       >
         <Menu size={23} />
       </button>
+
+      <div className="mobile-brand">
+        <img
+          src="/banana-bets-logo.png"
+          alt="Banana Bets"
+        />
+
+        <span>
+          BANANA <strong>BETS</strong>
+        </span>
+      </div>
 
       <div className="selector">
         <label>Season</label>
@@ -341,6 +366,15 @@ function Topbar({
         </strong>
       </div>
 
+      <div className="demo-status">
+        <span className="demo-status-dot" />
+
+        <div>
+          <strong>SAMPLE DATA</strong>
+          <span>Model connection pending</span>
+        </div>
+      </div>
+
       <div className="search-shell">
         <Search size={18} />
 
@@ -349,7 +383,10 @@ function Topbar({
         />
       </div>
 
-      <button className="profile-button">
+      <button
+        className="profile-button"
+        aria-label="Profile"
+      >
         <User size={19} />
       </button>
     </header>
@@ -361,21 +398,27 @@ function Hero() {
     <section className="hero">
       <div className="hero-left">
         <div className="eyebrow">
-          BANANA BETS MODEL ENGINE
+          NFL MODEL + BETTING ANALYTICS
         </div>
 
         <h1>
           NFL PREDICTIONS
         </h1>
 
-        <p>
-          Model-driven betting analytics
-          built to find value, not chase picks.
+        <p className="hero-description">
+          <strong>
+            Peel back the numbers.
+          </strong>
+
+          <span>
+            Model-driven analysis built to identify value,
+            measure uncertainty, and explain the edge.
+          </span>
         </p>
 
         <div className="hero-actions">
           <button className="primary-button">
-            View This Week's Games
+            View This Week&apos;s Games
           </button>
 
           <button className="secondary-button">
@@ -892,9 +935,7 @@ function Dashboard() {
   );
 }
 
-function Placeholder({
-  page
-}) {
+function Placeholder({ page }) {
   return (
     <section className="placeholder panel">
       <img
@@ -958,13 +999,10 @@ export default function App() {
         />
 
         <main className="content">
-          {activePage ===
-          "Dashboard" ? (
+          {activePage === "Dashboard" ? (
             <Dashboard />
           ) : (
-            <Placeholder
-              page={activePage}
-            />
+            <Placeholder page={activePage} />
           )}
         </main>
 
