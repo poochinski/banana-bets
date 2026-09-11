@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { RotateCcw, Save, CheckCircle2 } from "lucide-react";
+import { RotateCcw, Save, CheckCircle2, PlayCircle } from "lucide-react";
 
 const STORAGE_KEY = "banana-bets-settings";
 
@@ -239,16 +239,22 @@ export default function SettingsPage() {
           <h2>Guided tour</h2>
 
           <p className="settings-copy">
-            The guided tutorial will be added in the
-            next pass. This setting area is already
-            reserved for replaying the tour after it
-            has been completed or skipped.
+            Replay the guided dashboard tour at any
+            time. Starting it again does not change
+            your saved settings or model data.
           </p>
 
           <button
             className="settings-button secondary"
-            disabled
+            onClick={() => {
+              window.dispatchEvent(
+                new Event(
+                  "banana-bets:start-tutorial"
+                )
+              );
+            }}
           >
+            <PlayCircle size={16} />
             Run tutorial again
           </button>
         </section>
