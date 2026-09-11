@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import "./MatchupHelmetAssets.css";
 
 const TEAM_ALIASES = {
@@ -32,53 +33,47 @@ function parseGameId(gameId) {
   };
 }
 
-function preload(src) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(src);
-    image.onerror = reject;
-    image.src = src;
-  });
-}
+function AwayHelmetVisual({ team }) {
+  const normalized = normalizeTeam(team);
+  const [useSprite, setUseSprite] = useState(false);
+  const position = AWAY_SPRITE_POSITIONS[normalized];
+  const individualSrc = `/helmets/away/${normalized}_AWAY.png`;
 
-function applyIndividualHelmet(selector, src) {
-  const target = document.querySelector(selector);
-  if (!target) return;
+  if (!useSprite) {
+    return (
+      <div className="retro-helmet-bridge-slot">
+        <img
+          className="retro-helmet-individual"
+          src={individualSrc}
+          alt={`${normalized} away helmet`}
+          onError={() => setUseSprite(true)}
+        />
+      </div>
+    );
+  }
 
-  target.style.backgroundImage = `url("${src}")`;
-  target.style.backgroundPosition = "center";
-  target.style.backgroundRepeat = "no-repeat";
-  target.style.backgroundSize = "contain";
-  target.style.width = "min(260px, 24vw)";
-  target.style.height = "190px";
-}
-
-function applyAwaySprite(team) {
-  const target = document.querySelector(".retro-team-away .retro-helmet-sprite");
-  const position = AWAY_SPRITE_POSITIONS[normalizeTeam(team)];
-  if (!target || !position) return;
+  if (!position) {
+    return (
+      <div className="retro-helmet-bridge-slot">
+        <div className="retro-helmet-fallback">{normalized}</div>
+      </div>
+    );
+  }
 
   const [column, row] = position;
-  target.style.backgroundImage = 'url("/helmets/away/away-helmets-sprite.png")';
-  target.style.backgroundRepeat = "no-repeat";
-  target.style.backgroundSize = "1040px 1536px";
-  target.style.backgroundPosition = `${-column * 260}px ${-row * 192}px`;
-  target.style.width = "260px";
-  target.style.height = "192px";
-  target.style.imageRendering = "pixelated";
-}
 
-function restoreSprite(selector) {
-  const target = document.querySelector(selector);
-  if (!target) return;
-
-  target.style.backgroundImage = "";
-  target.style.backgroundPosition = "";
-  target.style.backgroundRepeat = "";
-  target.style.backgroundSize = "";
-  target.style.width = "";
-  target.style.height = "";
-  target.style.imageRendering = "";
+  return (
+    <div className="retro-helmet-bridge-slot">
+      <div
+        className="retro-away-helmet-sprite"
+        role="img"
+        aria-label={`${normalized} away helmet`}
+        style={{
+          backgroundPosition: `${-column * 260}px ${-row * 192}px`
+        }}
+      />
+    </div>
+  );
 }
 
 export default function MatchupHelmetAssetBridge({ rows = [] }) {
@@ -86,50 +81,46 @@ export default function MatchupHelmetAssetBridge({ rows = [] }) {
   const [gameId, setGameId] = useState(
     () => sessionStorage.getItem("banana-bets:selected-matchup") || fallbackGameId
   );
+  const [awayTarget, setAwayTarget] = useState(null);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const syncGame = () => {
       const next = sessionStorage.getItem("banana-bets:selected-matchup") || fallbackGameId;
-      setGameId((current) => (next && next !== current ? next : current));
-    }, 250);
+      if (next) {
+        setGameId((current) => (next !== current ? next : current));
+      }
+    };
 
+    syncGame();
+    const timer = window.setInterval(syncGame, 250);
     return () => window.clearInterval(timer);
   }, [fallbackGameId]);
 
   useEffect(() => {
-    const teams = parseGameId(gameId);
-    if (!teams) return undefined;
-
-    let cancelled = false;
-
-    const awaySrc = `/helmets/away/${teams.away}_AWAY.png`;
-    const homeSrc = `/helmets/home/${teams.home}_HOME.png`;
-
-    restoreSprite(".retro-team-away .retro-helmet-sprite");
-    restoreSprite(".retro-team-home .retro-helmet-sprite");
-
-    preload(awaySrc)
-      .then(() => {
-        if (!cancelled) {
-          applyIndividualHelmet(".retro-team-away .retro-helmet-sprite", awaySrc);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) applyAwaySprite(teams.away);
-      });
-
-    preload(homeSrc)
-      .then(() => {
-        if (!cancelled) {
-          applyIndividualHelmet(".retro-team-home .retro-helmet-sprite", homeSrc);
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
+    const findTarget = () => {
+      const target = document.querySelector(".retro-team-away");
+      setAwayTarget((current) => (current === target ? current : target));
     };
-  }, [gameId]);
 
-  return null;
+    findTarget();
+    const observer = new MutationObserver(findTarget);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!awayTarget) return undefined;
+
+    awayTarget.classList.add("helmet-asset-bridge-active");
+    return () => awayTarget.classList.remove("helmet-asset-bridge-active");
+  }, [awayTarget]);
+
+  const teams = parseGameId(gameId);
+  if (!teams || !awayTarget) return null;
+
+  return createPortal(
+    <AwayHelmetVisual key={teams.away} team={teams.away} />,
+    awayTarget
+  );
 }
