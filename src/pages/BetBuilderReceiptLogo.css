@@ -1,0 +1,10 @@
+/* Bet-slip-only logo override: use the monochrome outlined Banana Bets mark. */
+.receipt-brand img {
+  content: url("/banana-bets-slip-gray.svg");
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 13px;
+  filter: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
+}
