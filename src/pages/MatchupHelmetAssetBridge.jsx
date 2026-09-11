@@ -72,8 +72,8 @@ export default function MatchupHelmetAssetBridge({ rows = [] }) {
 
     let cancelled = false;
 
-    const awaySrc = `/helmets/away/${teams.away}.png`;
-    const homeSrc = `/helmets/home/${teams.home}.png`;
+    const awaySrc = `/helmets/away/${teams.away}_AWAY.png`;
+    const homeSrc = `/helmets/home/${teams.home}_HOME.png`;
 
     restoreSprite(".retro-team-away .retro-helmet-sprite");
     restoreSprite(".retro-team-home .retro-helmet-sprite");
