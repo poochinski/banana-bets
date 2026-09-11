@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
+  Plus,
   BookOpen,
   Filter,
   LayoutGrid,
@@ -214,7 +215,9 @@ function ProbabilityBars({ row }) {
 
 function ValueCard({
   row,
-  onViewMatchup
+  onViewMatchup,
+  onAddToBuilder,
+  isInBuilder
 }) {
   const value =
     valueLabel(row);
@@ -330,6 +333,19 @@ function ValueCard({
       </div>
 
       <div className="value-card-actions">
+        <button
+          type="button"
+          className={`value-builder-button ${isInBuilder ? "added" : ""}`}
+          onClick={() =>
+            onAddToBuilder(row)
+          }
+        >
+          <Plus size={14} />
+          {isInBuilder
+            ? "Added"
+            : "Add to Builder"}
+        </button>
+
         <button
           type="button"
           className="value-matchup-button"
@@ -523,7 +539,9 @@ function AdvancedTable({
 export default function MoneylineValueFinder({
   rows,
   loading,
-  onViewMatchup
+  onViewMatchup,
+  onAddToBuilder,
+  builderLegIds
 }) {
   const [view, setView] =
     useState("simple");
@@ -961,6 +979,25 @@ export default function MoneylineValueFinder({
                 row={row}
                 onViewMatchup={
                   onViewMatchup
+                }
+                onAddToBuilder={
+                  onAddToBuilder
+                }
+                isInBuilder={
+                  builderLegIds?.has(
+                    [
+                      "banana",
+                      "moneyline",
+                      row.game_id ||
+                        row.matchup ||
+                        "",
+                      row.team ||
+                        "",
+                      "",
+                      row.team ||
+                        ""
+                    ].join("|")
+                  )
                 }
               />
             )
