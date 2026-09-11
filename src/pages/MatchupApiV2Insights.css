@@ -1,0 +1,253 @@
+.matchup-v2-insights {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.matchup-v2-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 2px;
+}
+
+.matchup-v2-heading h2 {
+  margin: 3px 0 0;
+  color: var(--dark);
+  font-size: 22px;
+}
+
+.matchup-v2-heading p {
+  max-width: 760px;
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.v2-panel {
+  margin: 0;
+}
+
+.v2-stat-grid,
+.v2-component-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.v2-component-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
+.v2-stat-card {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 12px 13px;
+  border: 1px solid #d8d9dd;
+  border-radius: 10px;
+  background: #f7f7f8;
+}
+
+.v2-stat-card > span {
+  color: #7b7f87;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .55px;
+}
+
+.v2-stat-card > strong {
+  color: var(--dark);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.v2-stat-card > small {
+  color: #8b8e95;
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.v2-warning,
+.v2-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid rgba(231, 185, 47, .35);
+  border-radius: 9px;
+  background: rgba(231, 185, 47, .08);
+  color: #6f5a14;
+}
+
+.v2-warning {
+  margin-top: 10px;
+}
+
+.v2-warning > div {
+  display: grid;
+  gap: 3px;
+}
+
+.v2-warning strong {
+  font-size: 9px;
+}
+
+.v2-warning span,
+.v2-error {
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.v2-error {
+  border-color: rgba(217, 30, 44, .3);
+  background: rgba(217, 30, 44, .06);
+  color: #9b1b25;
+}
+
+.v2-explanation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.v2-explanation-card {
+  overflow: hidden;
+  border: 1px solid #d8d9dd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.v2-explanation-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e1e4;
+  background: #f0f0f2;
+}
+
+.v2-explanation-head strong {
+  font-size: 10px;
+}
+
+.v2-factor-row,
+.v2-market-agreement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e7e7e9;
+}
+
+.v2-factor-row span,
+.v2-market-agreement {
+  color: var(--text-soft);
+  font-size: 8px;
+}
+
+.v2-factor-row strong {
+  font-size: 12px;
+}
+
+.v2-market-agreement {
+  border-bottom: 0;
+}
+
+.v2-spread-table {
+  overflow: hidden;
+  border: 1px solid #d8d9dd;
+  border-radius: 10px;
+}
+
+.v2-spread-head,
+.v2-spread-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr .7fr .9fr .8fr .7fr .8fr;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+}
+
+.v2-spread-head {
+  min-height: 34px;
+  border-bottom: 1px solid #d8d9dd;
+  background: #ececef;
+  color: #7c7f86;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .45px;
+  text-transform: uppercase;
+}
+
+.v2-spread-row {
+  min-height: 52px;
+  border-bottom: 1px solid #e4e4e6;
+  background: #fafafa;
+  color: var(--text-soft);
+  font-size: 8px;
+}
+
+.v2-spread-row:last-child {
+  border-bottom: 0;
+}
+
+.v2-spread-row strong {
+  color: var(--dark);
+  font-size: 10px;
+}
+
+.v2-performance-panel {
+  margin-bottom: 2px;
+}
+
+.v2-performance-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+@media (max-width: 1050px) {
+  .v2-component-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .v2-performance-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .v2-spread-table {
+    overflow-x: auto;
+  }
+
+  .v2-spread-head,
+  .v2-spread-row {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 720px) {
+  .matchup-v2-heading,
+  .v2-explanation-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .v2-stat-grid,
+  .v2-component-grid,
+  .v2-performance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .v2-stat-grid,
+  .v2-component-grid,
+  .v2-performance-grid {
+    grid-template-columns: 1fr;
+  }
+}
