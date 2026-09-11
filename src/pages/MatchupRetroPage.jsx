@@ -1,13 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
-  CalendarDays,
-  CloudSun,
-  MapPin,
+  AlertTriangle,
+  ArrowUpRight,
   ShieldAlert,
-  Swords,
-  Tv,
-  Wind
+  Swords
 } from "lucide-react";
 import {
   formatStat,
@@ -89,6 +86,19 @@ const SPRITE_POSITIONS = {
   DAL: [0, 6], NYG: [1, 6], PHI: [2, 6], WAS: [3, 6],
   ARI: [0, 7], LAR: [1, 7], SF: [2, 7], SEA: [3, 7]
 };
+
+const TEAM_STATS = [
+  ["Points / Game", "pointsPerGame"],
+  ["Yards / Game", "yardsPerGame"],
+  ["Pass Yards / Game", "passYardsPerGame"],
+  ["Rush Yards / Game", "rushYardsPerGame"],
+  ["Yards / Play", "yardsPerPlay"],
+  ["3rd Down %", "thirdDownPct"],
+  ["Red Zone %", "redZonePct"],
+  ["Turnover Differential", "turnoverDifferential"],
+  ["Points Allowed / Game", "pointsAllowedPerGame"],
+  ["Yards Allowed / Game", "yardsAllowedPerGame"]
+];
 
 function normalizeTeam(team) {
   const key = String(team || "").trim().toUpperCase();
@@ -189,6 +199,23 @@ function gamesUsed(rows) {
   return samples.length ? Math.min(...samples) : 0;
 }
 
+function displayBook(value) {
+  if (!value) return "Listed sportsbook";
+  const aliases = {
+    williamhill: "William Hill",
+    fanduel: "FanDuel",
+    draftkings: "DraftKings",
+    matchbook: "Matchbook",
+    marathonbet: "Marathonbet",
+    betfair_ex_eu: "Betfair Exchange",
+    unibet_se: "Unibet",
+    unibet_nl: "Unibet"
+  };
+  return aliases[value] || String(value)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
 function PixelHelmet({ team }) {
   const normalized = normalizeTeam(team);
   const position = SPRITE_POSITIONS[normalized];
@@ -210,23 +237,103 @@ function PixelHelmet({ team }) {
   );
 }
 
-function StatCell({ stat }) {
-  return <strong>{formatStat(stat)}</strong>;
+function HeroContextItem({ icon, label, value }) {
+  return (
+    <div className="retro-hero-context-item">
+      <span className="retro-context-placeholder" aria-hidden="true">{icon}</span>
+      <div>
+        <small>{label}</small>
+        <strong>{value || "—"}</strong>
+      </div>
+    </div>
+  );
 }
 
-function InjuryColumn({ team, injuries = [] }) {
+function StandardMarketRow({ row, team }) {
   return (
-    <div className="retro-injury-team">
-      <div className="retro-injury-team-title" style={{ "--team-accent": TEAM_COLORS[team] || "#e7b92f" }}>
-        {team} {TEAM_NAMES[team]}
+    <div className="matchup-market-data-row">
+      <div className="matchup-market-team-cell">
+        <span
+          className="matchup-team-accent"
+          style={{ background: TEAM_COLORS[team] || "#7d8087" }}
+        />
+        <div>
+          <strong>{team}</strong>
+          <small>{TEAM_NAMES[team] || team}</small>
+        </div>
+      </div>
+      <strong>{americanOdds(row?.american_odds)}</strong>
+      <span>{displayBook(row?.sportsbook)}</span>
+      <strong>{americanOdds(row?.fair_odds)}</strong>
+      <strong>{pct(row?.model_win_prob)}</strong>
+      <strong>{pct(row?.market_win_prob)}</strong>
+      <strong className={Number(row?.edge_vs_market) >= 0 ? "green-value" : "red-value"}>
+        {signedPp(row?.edge_vs_market)}
+      </strong>
+      <strong className={Number(row?.ev) >= 0 ? "green-value" : "red-value"}>
+        {signedPct(row?.ev)}
+      </strong>
+      <span className={`confidence-badge ${String(row?.confidence || "low").toLowerCase()}`}>
+        {String(row?.confidence || "—").toUpperCase()}
+      </span>
+    </div>
+  );
+}
+
+function StandardStats({ away, home, awayStats, homeStats, statsSeason, currentSeason }) {
+  return (
+    <section className="panel matchup-standard-panel" id="matchup-stats">
+      <div className="panel-header matchup-standard-header">
+        <div>
+          <span className="panel-kicker">TEAM COMPARISON</span>
+          <h2>Football Stats</h2>
+          <p>
+            {statsSeason === currentSeason
+              ? `${statsSeason} current-season team context.`
+              : `${statsSeason} previous-season baseline while ${currentSeason} has no current-season sample.`}
+          </p>
+        </div>
+        <div className="matchup-team-key">
+          <span style={{ "--key-color": TEAM_COLORS[away] || "#888" }}>{away}</span>
+          <span style={{ "--key-color": TEAM_COLORS[home] || "#888" }}>{home}</span>
+        </div>
+      </div>
+
+      <div className="matchup-stats-table">
+        <div className="matchup-stats-head">
+          <strong>{away}</strong>
+          <span>STAT</span>
+          <strong>{home}</strong>
+        </div>
+        {TEAM_STATS.map(([label, key]) => (
+          <div className="matchup-standard-stat-row" key={key}>
+            <strong>{formatStat(awayStats?.[key])}</strong>
+            <span>{label}</span>
+            <strong>{formatStat(homeStats?.[key])}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StandardInjuryColumn({ team, injuries = [] }) {
+  return (
+    <div className="matchup-injury-team-card">
+      <div className="matchup-injury-team-heading">
+        <span style={{ background: TEAM_COLORS[team] || "#777" }} />
+        <div>
+          <strong>{team} {TEAM_NAMES[team]}</strong>
+          <small>{injuries.length ? `${injuries.length} listed` : "No listed injuries returned"}</small>
+        </div>
       </div>
 
       {injuries.length ? (
-        <div className="retro-injury-list">
-          {injuries.slice(0, 5).map((injury, index) => (
-            <div className="retro-injury-row" key={`${injury.name}-${index}`}>
+        <div className="matchup-injury-list">
+          {injuries.slice(0, 6).map((injury, index) => (
+            <div className="matchup-injury-row" key={`${injury.name}-${index}`}>
               <span>
-                <b>{injury.name}</b>
+                <strong>{injury.name}</strong>
                 <small>{injury.position || "—"}</small>
               </span>
               <em>{injury.status || "Listed"}</em>
@@ -234,78 +341,9 @@ function InjuryColumn({ team, injuries = [] }) {
           ))}
         </div>
       ) : (
-        <div className="retro-empty-line">No injury entries returned</div>
+        <div className="matchup-injury-empty">No injury entries returned from the public feed.</div>
       )}
     </div>
-  );
-}
-
-function ContextLine({ label, children }) {
-  return (
-    <div className="retro-context-line">
-      <span>{label}</span>
-      <strong>{children || "—"}</strong>
-    </div>
-  );
-}
-
-function MarketRow({ row, team }) {
-  return (
-    <div className="retro-market-row">
-      <div className="retro-market-team" style={{ "--team-accent": TEAM_COLORS[team] || "#e7b92f" }}>
-        <span>{team}</span>
-        <b>{TEAM_NAMES[team] || team}</b>
-      </div>
-      <strong>{americanOdds(row?.fair_odds)}</strong>
-      <strong>{pct(row?.model_win_prob)}</strong>
-      <strong>{pct(row?.market_win_prob)}</strong>
-      <strong className={Number(row?.edge_vs_market) >= 0 ? "retro-positive" : "retro-negative"}>
-        {signedPp(row?.edge_vs_market)}
-      </strong>
-      <strong className={Number(row?.ev) >= 0 ? "retro-positive" : "retro-negative"}>
-        {signedPct(row?.ev)}
-      </strong>
-      <span className={`retro-confidence ${String(row?.confidence || "low").toLowerCase()}`}>
-        {String(row?.confidence || "—").toUpperCase()}
-      </span>
-    </div>
-  );
-}
-
-function TeamStatsTable({ away, home, awayStats, homeStats, statsSeason }) {
-  const rows = [
-    ["POINTS / GAME", "pointsPerGame"],
-    ["YARDS / GAME", "yardsPerGame"],
-    ["PASS YDS / GAME", "passYardsPerGame"],
-    ["RUSH YDS / GAME", "rushYardsPerGame"],
-    ["YARDS / PLAY", "yardsPerPlay"],
-    ["3RD DOWN %", "thirdDownPct"],
-    ["RED ZONE %", "redZonePct"],
-    ["TURNOVER DIFF", "turnoverDifferential"],
-    ["POINTS ALLOWED", "pointsAllowedPerGame"],
-    ["YARDS ALLOWED", "yardsAllowedPerGame"]
-  ];
-
-  return (
-    <section className="retro-panel retro-stats-panel" id="retro-stats">
-      <div className="retro-panel-title">
-        <span>▥</span> TEAM STATS <small>{statsSeason} {statsSeason < new Date().getFullYear() ? "BASELINE" : "SEASON"}</small>
-      </div>
-      <div className="retro-stats-head">
-        <b style={{ color: TEAM_COLORS[away] || "#8dc7ff" }}>{away}</b>
-        <span>STAT</span>
-        <b style={{ color: TEAM_COLORS[home] || "#8dc7ff" }}>{home}</b>
-      </div>
-      <div className="retro-stats-body">
-        {rows.map(([label, key]) => (
-          <div className="retro-stat-row" key={key}>
-            <StatCell stat={awayStats?.[key]} />
-            <span>{label}</span>
-            <StatCell stat={homeStats?.[key]} />
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -374,13 +412,28 @@ export default function MatchupRetroPage({ rows, season, week }) {
     .filter(Boolean)
     .sort((a, b) => Number(b.ev || 0) - Number(a.ev || 0))[0];
   const bestTeam = normalizeTeam(bestRow?.team || away);
+  const location = [context?.city, context?.state].filter(Boolean).join(", ") || "Location TBD";
+  const weatherText = weather?.indoor
+    ? "Indoor / roofed"
+    : weather?.temperature != null
+      ? `${Math.round(weather.temperature)}° · ${weather.condition || "Weather"}`
+      : weather?.unavailable
+        ? "Forecast pending"
+        : "Weather loading";
+  const windText = weather?.indoor
+    ? "Indoor"
+    : weather?.wind != null
+      ? `${Math.round(weather.wind)} mph${weather?.gusts != null ? ` · gust ${Math.round(weather.gusts)}` : ""}`
+      : "Pending";
+  const roofText = context?.indoor ? "Indoor / roofed" : "Open air";
+  const broadcastText = context?.broadcast?.join(", ") || "Broadcast TBD";
 
   return (
-    <section className="retro-matchup-page">
+    <section className="retro-matchup-page matchup-hybrid-page">
       <div className="retro-matchup-toolbar">
         <div>
           <span className="retro-kicker">NFL / MATCHUP BREAKDOWN</span>
-          <p>Retro presentation. Real Banana model + public game context.</p>
+          <p>Retro matchup presentation with Banana Bets research below.</p>
         </div>
         <label>
           <span>SELECT MATCHUP</span>
@@ -400,7 +453,7 @@ export default function MatchupRetroPage({ rows, season, week }) {
       </div>
 
       <section
-        className="retro-hero"
+        className="retro-hero retro-hero-expanded"
         style={{
           "--away-accent": TEAM_COLORS[away] || "#1167d8",
           "--home-accent": TEAM_COLORS[home] || "#00a6a6"
@@ -417,29 +470,22 @@ export default function MatchupRetroPage({ rows, season, week }) {
           <em>{DIVISIONS[away] || "NFL"}</em>
         </div>
 
-        <div className="retro-scoreboard">
+        <div className="retro-scoreboard retro-scoreboard-context">
           <span className="retro-board-brand">BANANA BETS</span>
           <h1>MATCHUP<br />BREAKDOWN</h1>
           <div className="retro-board-week">{String(week).toUpperCase()}</div>
-          <strong>{formatKickoff(context?.date)}</strong>
-          <div className="retro-dot-divider" />
-          <b>{context?.venueName || "VENUE TBD"}</b>
-          <span>{[context?.city, context?.state].filter(Boolean).join(", ") || "LOCATION TBD"}</span>
-          <div className="retro-board-weather">
-            <CloudSun size={18} />
-            <span>
-              {weather?.indoor
-                ? "INDOOR / ROOFED"
-                : weather?.temperature != null
-                  ? `${Math.round(weather.temperature)}° · ${String(weather.condition || "WEATHER").toUpperCase()}`
-                  : weather?.unavailable
-                    ? "FORECAST PENDING"
-                    : "WEATHER LOADING"}
-            </span>
+          <strong className="retro-kickoff-line">{formatKickoff(context?.date)}</strong>
+
+          <div className="retro-hero-context-grid">
+            <HeroContextItem icon="🏟️" label="STADIUM" value={context?.venueName || "Venue TBD"} />
+            <HeroContextItem icon="📍" label="LOCATION" value={location} />
+            <HeroContextItem icon="🌤️" label="WEATHER" value={weatherText} />
+            <HeroContextItem icon="💨" label="WIND" value={windText} />
+            <HeroContextItem icon="🏠" label="ROOF" value={roofText} />
+            <HeroContextItem icon="📺" label="BROADCAST" value={broadcastText} />
           </div>
-          {!weather?.indoor && weather?.wind != null && (
-            <small>WIND {Math.round(weather.wind)} MPH{weather?.gusts != null ? ` · GUST ${Math.round(weather.gusts)}` : ""}</small>
-          )}
+
+          {contextLoading && <small className="retro-context-loading">LOADING GAME CONTEXT...</small>}
         </div>
 
         <div className="retro-team-side retro-team-home">
@@ -455,96 +501,116 @@ export default function MatchupRetroPage({ rows, season, week }) {
         </div>
       </section>
 
-      <nav className="retro-tabs">
-        {["OVERVIEW", "STATS", "ODDS", "INJURIES", "CONTEXT"].map((tab) => (
-          <button
-            key={tab}
-            className={tab === "OVERVIEW" ? "active" : ""}
-            onClick={() => {
-              const target = tab === "STATS"
-                ? "retro-stats"
-                : tab === "INJURIES"
-                  ? "retro-injuries"
-                  : tab === "CONTEXT"
-                    ? "retro-context"
-                    : "retro-model";
-              document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-          >
-            {tab}
-          </button>
-        ))}
-        <span className="retro-live-chip"><Activity size={12} /> LIVE MODEL DATA</span>
+      <nav className="matchup-standard-tabs">
+        <button onClick={() => document.getElementById("matchup-model")?.scrollIntoView({ behavior: "smooth" })}>Overview</button>
+        <button onClick={() => document.getElementById("matchup-stats")?.scrollIntoView({ behavior: "smooth" })}>Stats</button>
+        <button onClick={() => document.getElementById("matchup-injuries")?.scrollIntoView({ behavior: "smooth" })}>Injuries</button>
+        <span><Activity size={13} /> Live model data</span>
       </nav>
 
-      <div className="retro-content-grid retro-top-grid">
-        <section className="retro-panel retro-model-panel" id="retro-model">
-          <div className="retro-panel-title"><span>▥</span> BANANA MODEL <b>VS MARKET</b></div>
-          <div className="retro-market-head">
-            <span>TEAM</span><span>FAIR ODDS</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>EV</span><span>CONF.</span>
+      <section className="panel matchup-standard-panel matchup-model-standard" id="matchup-model">
+        <div className="panel-header matchup-standard-header">
+          <div>
+            <span className="panel-kicker">BANANA MODEL VS MARKET</span>
+            <h2>Moneyline Comparison</h2>
+            <p>Banana's model view, the listed market price, and the gap between them.</p>
           </div>
-          <MarketRow row={awayRow} team={away} />
-          <MarketRow row={homeRow} team={home} />
-          <div className="retro-best-bet">
+          <span className="matchup-live-pill"><Activity size={13} /> LIVE</span>
+        </div>
+
+        <div className="matchup-market-table">
+          <div className="matchup-market-head-row">
+            <span>Team</span>
+            <span>Listed Odds</span>
+            <span>Book</span>
+            <span>Fair Odds</span>
+            <span>Model</span>
+            <span>Market</span>
+            <span>Edge</span>
+            <span>EV</span>
+            <span>Confidence</span>
+          </div>
+          <StandardMarketRow row={awayRow} team={away} />
+          <StandardMarketRow row={homeRow} team={home} />
+        </div>
+
+        <div className="matchup-best-value-strip">
+          <div>
             <span>BEST CURRENT MONEYLINE VALUE</span>
             <strong>{bestTeam} ML {americanOdds(bestRow?.american_odds)}</strong>
-            <b className={Number(bestRow?.ev) >= 0 ? "retro-positive" : "retro-negative"}>{signedPct(bestRow?.ev)} EV</b>
-            <small>{String(bestRow?.confidence || "—").toUpperCase()} CONFIDENCE</small>
           </div>
-        </section>
-
-        <section className="retro-panel retro-context-panel" id="retro-context">
-          <div className="retro-panel-title"><span>▣</span> GAME CONTEXT</div>
-          {contextLoading && <div className="retro-loading">LOADING PUBLIC GAME DATA...</div>}
-          <ContextLine label="KICKOFF"><CalendarDays size={13} /> {formatKickoff(context?.date)}</ContextLine>
-          <ContextLine label="STADIUM">{context?.venueName}</ContextLine>
-          <ContextLine label="LOCATION"><MapPin size={13} /> {[context?.city, context?.state].filter(Boolean).join(", ")}</ContextLine>
-          <ContextLine label="WEATHER"><CloudSun size={13} /> {weather?.condition || (weather?.indoor ? "Indoor" : "—")}</ContextLine>
-          <ContextLine label="WIND"><Wind size={13} /> {weather?.wind != null ? `${Math.round(weather.wind)} mph` : weather?.indoor ? "Indoor" : "—"}</ContextLine>
-          <ContextLine label="ROOF">{context?.indoor ? "Indoor / Roofed" : "Open air"}</ContextLine>
-          <ContextLine label="BROADCAST"><Tv size={13} /> {context?.broadcast?.join(", ") || "—"}</ContextLine>
-        </section>
-      </div>
-
-      <div className="retro-content-grid retro-middle-grid">
-        <TeamStatsTable
-          away={away}
-          home={home}
-          awayStats={awayStats}
-          homeStats={homeStats}
-          statsSeason={statsSeason}
-        />
-
-        <section className="retro-panel retro-injury-panel" id="retro-injuries">
-          <div className="retro-panel-title"><ShieldAlert size={16} /> INJURY REPORT</div>
-          <div className="retro-injury-columns">
-            <InjuryColumn team={away} injuries={awayInjuries} />
-            <InjuryColumn team={home} injuries={homeInjuries} />
-          </div>
-        </section>
-      </div>
-
-      <section className="retro-panel retro-take-panel">
-        <div className="retro-panel-title"><span>🍌</span> BANANA TAKE <small>DATA-FIRST SUMMARY</small></div>
-        <div className="retro-take-body">
           <div>
-            <h3>{bestTeam} shows the strongest current moneyline value in Banana's pricing.</h3>
-            <p>
-              Banana estimates {bestTeam}'s win probability at {pct(bestRow?.model_win_prob)} versus {pct(bestRow?.market_win_prob)} implied by the listed market price. That creates a {signedPp(bestRow?.edge_vs_market)} model-to-market gap and {signedPct(bestRow?.ev)} expected value at {americanOdds(bestRow?.american_odds)}.
-            </p>
-            <p className="retro-take-note">
-              Team statistics shown above are {statsSeason === Number(season) ? `${statsSeason} current-season context` : `${statsSeason} previous-season baseline context`} and are displayed for research; they do not replace Banana's model output.
-            </p>
+            <span>MODEL EDGE</span>
+            <strong className={Number(bestRow?.edge_vs_market) >= 0 ? "green-value" : "red-value"}>
+              {signedPp(bestRow?.edge_vs_market)}
+            </strong>
           </div>
-          <div className="retro-bottom-line">
-            <span>BOTTOM LINE</span>
-            <strong>{bestTeam} IS THE BETTER-PRICED SIDE RIGHT NOW.</strong>
-            <small>CONFIDENCE: {String(bestRow?.confidence || "—").toUpperCase()} · EV: {signedPct(bestRow?.ev)}</small>
+          <div>
+            <span>EXPECTED VALUE</span>
+            <strong className={Number(bestRow?.ev) >= 0 ? "green-value" : "red-value"}>
+              {signedPct(bestRow?.ev)}
+            </strong>
+          </div>
+          <div>
+            <span>CONFIDENCE</span>
+            <strong>{String(bestRow?.confidence || "—").toUpperCase()}</strong>
           </div>
         </div>
       </section>
 
-      <div className="retro-source-strip">
+      <StandardStats
+        away={away}
+        home={home}
+        awayStats={awayStats}
+        homeStats={homeStats}
+        statsSeason={statsSeason}
+        currentSeason={Number(season)}
+      />
+
+      <section className="panel matchup-standard-panel" id="matchup-injuries">
+        <div className="panel-header matchup-standard-header">
+          <div>
+            <span className="panel-kicker">PERSONNEL</span>
+            <h2>Injury Report</h2>
+            <p>Public injury listings for both teams. Availability can change as game day approaches.</p>
+          </div>
+          <ShieldAlert size={21} />
+        </div>
+        <div className="matchup-injury-grid">
+          <StandardInjuryColumn team={away} injuries={awayInjuries} />
+          <StandardInjuryColumn team={home} injuries={homeInjuries} />
+        </div>
+      </section>
+
+      <section className="panel matchup-standard-panel matchup-take-standard">
+        <div className="panel-header matchup-standard-header">
+          <div>
+            <span className="panel-kicker">BANANA TAKE</span>
+            <h2>What the current pricing says</h2>
+          </div>
+          <span className="matchup-banana-mark">🍌</span>
+        </div>
+
+        <div className="matchup-take-layout">
+          <div>
+            <h3>{bestTeam} currently shows the stronger moneyline value.</h3>
+            <p>
+              Banana estimates {bestTeam}'s win probability at {pct(bestRow?.model_win_prob)} versus {pct(bestRow?.market_win_prob)} implied by the listed price. That creates a {signedPp(bestRow?.edge_vs_market)} model-to-market gap and {signedPct(bestRow?.ev)} expected value at {americanOdds(bestRow?.american_odds)}.
+            </p>
+            <p className="matchup-take-note">
+              Team statistics are {statsSeason === Number(season) ? `${statsSeason} current-season context` : `${statsSeason} previous-season baseline context`} and are research context, not a replacement for Banana's model output.
+            </p>
+          </div>
+
+          <div className="matchup-bottom-line-card">
+            <span>BOTTOM LINE</span>
+            <strong>{bestTeam} IS THE BETTER-PRICED SIDE RIGHT NOW.</strong>
+            <small>Confidence: {String(bestRow?.confidence || "—").toUpperCase()} · EV: {signedPct(bestRow?.ev)}</small>
+          </div>
+        </div>
+      </section>
+
+      <div className="matchup-source-strip">
         <span><b>BANANA</b> model + market</span>
         <span><b>ESPN</b> schedule · records · stats · injuries</span>
         <span><b>OPEN-METEO</b> weather</span>
