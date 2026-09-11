@@ -802,60 +802,117 @@ function Sidebar({
    TOPBAR MODEL STATE
    ========================================================= */
 
-function CompactModelState({ rows }) {
-  const gamesUsed =
-    rows.length
-      ? Math.min(
-          ...rows.map(
-            (row) =>
-              Number(
-                row.games_used ||
-                0
-              )
+function summarizeModelState(rows = []) {
+  const validRows =
+    Array.isArray(rows)
+      ? rows
+      : [];
+
+  const gameSamples =
+    validRows
+      .map(
+        (row) =>
+          Number(
+            row.games_used
           )
+      )
+      .filter(
+        Number.isFinite
+      );
+
+  const gamesUsed =
+    gameSamples.length > 0
+      ? Math.min(
+          ...gameSamples
         )
       : 0;
 
   const counts =
-    rows.reduce(
+    validRows.reduce(
       (result, row) => {
         const key =
           String(
             row.confidence ||
             "UNKNOWN"
-          ).toUpperCase();
+          )
+            .trim()
+            .toUpperCase();
 
         result[key] =
           (result[key] || 0) + 1;
 
         return result;
       },
-      {}
+      {
+        LOW: 0,
+        MEDIUM: 0,
+        HIGH: 0,
+        UNKNOWN: 0
+      }
     );
 
   const highestLevel =
-    (counts.HIGH || 0) > 0
+    counts.HIGH > 0
       ? "HIGH"
-      : (counts.MEDIUM || 0) > 0
+      : counts.MEDIUM > 0
         ? "MEDIUM"
-        : "LOW";
+        : counts.LOW > 0
+          ? "LOW"
+          : "NO DATA";
+
+  return {
+    gamesUsed,
+    counts,
+    highestLevel,
+    totalSides:
+      validRows.length
+  };
+}
+
+
+function CompactModelState({
+  rows,
+  loading
+}) {
+  const {
+    gamesUsed,
+    counts,
+    highestLevel,
+    totalSides
+  } =
+    summarizeModelState(
+      rows
+    );
+
+  const tone =
+    highestLevel === "NO DATA"
+      ? "none"
+      : highestLevel.toLowerCase();
 
   return (
     <div
       className="topbar-model-state"
       data-tour="model-status"
-      title={`LOW ${counts.LOW || 0} · MEDIUM ${counts.MEDIUM || 0} · HIGH ${counts.HIGH || 0}`}
+      title={
+        loading
+          ? "Loading model state..."
+          : `LOW ${counts.LOW} · MEDIUM ${counts.MEDIUM} · HIGH ${counts.HIGH}`
+      }
     >
       <span>
         MODEL STATE
       </span>
 
-      <strong className={`state-${highestLevel.toLowerCase()}`}>
-        {highestLevel}
+      <strong className={`state-${tone}`}>
+        {loading
+          ? "LOADING"
+          : highestLevel}
       </strong>
 
       <small>
-        {gamesUsed} games · L {counts.LOW || 0} · M {counts.MEDIUM || 0} · H {counts.HIGH || 0}
+        {loading
+          ? "Fetching model data..."
+          : `${gamesUsed} games · ${totalSides} sides · L ${counts.LOW} · M ${counts.MEDIUM} · H ${counts.HIGH}`}
       </small>
     </div>
   );
@@ -875,7 +932,8 @@ function Topbar({
   apiState,
   onRefresh,
   lastUpdated,
-  rows
+  rows,
+  loading
 }) {
   return (
     <header className="topbar">
@@ -1020,6 +1078,7 @@ function Topbar({
 
       <CompactModelState
         rows={rows}
+        loading={loading}
       />
 
       <div className="search-shell">
@@ -2804,6 +2863,9 @@ export default function App() {
           }
           rows={
             rows
+          }
+          loading={
+            loading
           }
         />
 
