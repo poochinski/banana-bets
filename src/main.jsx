@@ -5,6 +5,7 @@ import "./styles.css";
 import "./pages/BetBuilderReceipt.css";
 import "./pages/BetBuilderReceiptLogo.css";
 import "./pages/MatchupBreakdownV2.css";
+import "./pages/MatchupRetro.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
