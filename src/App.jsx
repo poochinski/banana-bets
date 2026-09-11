@@ -40,6 +40,7 @@ import { NAV_ITEMS } from "./config/navigation";
 import usePageRoute from "./hooks/usePageRoute";
 import ProductPage from "./pages/ProductPage";
 import SettingsPage from "./pages/SettingsPage";
+import MatchupBreakdownPage from "./pages/MatchupBreakdownPage";
 import InfoTooltip from "./components/InfoTooltip";
 import GuidedTutorial, { TUTORIAL_STORAGE_KEY } from "./components/GuidedTutorial";
 
@@ -2788,6 +2789,13 @@ export default function App() {
               setPinnedSlots={
                 setPinnedSlots
               }
+            />
+          ) : activePage ===
+            "Matchup Breakdown" ? (
+            <MatchupBreakdownPage
+              rows={rows}
+              season={season}
+              week={week}
             />
           ) : activePage ===
             "Settings" ? (
