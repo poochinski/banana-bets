@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import "./styles.css";
 import "./pages/BetBuilderReceipt.css";
 import "./pages/BetBuilderReceiptLogo.css";
+import "./pages/MatchupBreakdownV2.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
