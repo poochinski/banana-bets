@@ -34,13 +34,6 @@ function applyIndividualHelmet(selector, src) {
   const target = document.querySelector(selector);
   if (!target) return;
 
-  target.dataset.originalBackgroundImage =
-    target.dataset.originalBackgroundImage || target.style.backgroundImage || "";
-  target.dataset.originalBackgroundPosition =
-    target.dataset.originalBackgroundPosition || target.style.backgroundPosition || "";
-  target.dataset.originalBackgroundSize =
-    target.dataset.originalBackgroundSize || target.style.backgroundSize || "";
-
   target.style.backgroundImage = `url("${src}")`;
   target.style.backgroundPosition = "center";
   target.style.backgroundSize = "contain";
@@ -52,9 +45,8 @@ function restoreSprite(selector) {
   const target = document.querySelector(selector);
   if (!target) return;
 
-  target.style.backgroundImage = target.dataset.originalBackgroundImage || "";
-  target.style.backgroundPosition = target.dataset.originalBackgroundPosition || "";
-  target.style.backgroundSize = target.dataset.originalBackgroundSize || "";
+  target.style.backgroundImage = "";
+  target.style.backgroundSize = "";
   target.style.width = "";
   target.style.height = "";
 }
@@ -83,15 +75,16 @@ export default function MatchupHelmetAssetBridge({ rows = [] }) {
     const awaySrc = `/helmets/away/${teams.away}.png`;
     const homeSrc = `/helmets/home/${teams.home}.png`;
 
+    restoreSprite(".retro-team-away .retro-helmet-sprite");
+    restoreSprite(".retro-team-home .retro-helmet-sprite");
+
     preload(awaySrc)
       .then(() => {
         if (!cancelled) {
           applyIndividualHelmet(".retro-team-away .retro-helmet-sprite", awaySrc);
         }
       })
-      .catch(() => {
-        if (!cancelled) restoreSprite(".retro-team-away .retro-helmet-sprite");
-      });
+      .catch(() => {});
 
     preload(homeSrc)
       .then(() => {
@@ -99,9 +92,7 @@ export default function MatchupHelmetAssetBridge({ rows = [] }) {
           applyIndividualHelmet(".retro-team-home .retro-helmet-sprite", homeSrc);
         }
       })
-      .catch(() => {
-        if (!cancelled) restoreSprite(".retro-team-home .retro-helmet-sprite");
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;
