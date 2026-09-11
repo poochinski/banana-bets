@@ -1,0 +1,608 @@
+.matchup-hybrid-page {
+  gap: 14px;
+}
+
+.matchup-hybrid-page .retro-hero-expanded {
+  min-height: 390px;
+  padding-bottom: 48px;
+}
+
+.matchup-hybrid-page .retro-scoreboard-context {
+  width: 100%;
+  min-width: 0;
+  min-height: 330px;
+  padding: 20px 20px 16px;
+}
+
+.matchup-hybrid-page .retro-scoreboard-context h1 {
+  margin-bottom: 8px;
+}
+
+.retro-kickoff-line {
+  margin-top: 7px;
+  color: #f5f7fa;
+  font-size: 8px;
+  letter-spacing: .6px;
+}
+
+.retro-hero-context-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.retro-hero-context-item {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 7px 8px;
+  border: 1px solid #46586b;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.02) 0 1px,
+      transparent 1px 4px
+    ),
+    #0a1724;
+  box-shadow:
+    inset 0 0 0 1px #07101a,
+    inset 0 1px 0 rgba(255,255,255,.06);
+  text-align: left;
+}
+
+.retro-context-placeholder {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid #5b6d80;
+  background: #16283a;
+  font-size: 16px;
+  line-height: 1;
+  filter: saturate(.8) contrast(1.08);
+}
+
+.retro-hero-context-item > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.retro-hero-context-item small {
+  color: #7f9bb4;
+  font-size: 5px;
+  font-weight: 1000;
+  letter-spacing: .8px;
+}
+
+.retro-hero-context-item strong {
+  overflow: hidden;
+  color: #f1f5f8;
+  font-size: 7px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.retro-context-loading {
+  margin-top: 7px;
+  color: #f3c51c;
+  font-size: 6px;
+  letter-spacing: .8px;
+}
+
+.matchup-standard-tabs,
+.matchup-standard-panel,
+.matchup-source-strip {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.matchup-standard-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.matchup-standard-tabs button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.matchup-standard-tabs button:first-child {
+  border-color: rgba(231,185,47,.35);
+  background: rgba(231,185,47,.12);
+  color: #6e5810;
+}
+
+.matchup-standard-tabs button:hover {
+  background: #ececef;
+  color: var(--dark);
+}
+
+.matchup-standard-tabs > span {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 8px;
+  color: var(--green);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.matchup-standard-panel {
+  scroll-margin-top: 96px;
+  padding: 18px;
+}
+
+.matchup-standard-header {
+  align-items: flex-start;
+}
+
+.matchup-standard-header h2 {
+  margin: 2px 0 0;
+  color: var(--dark);
+  font-size: 20px;
+}
+
+.matchup-standard-header p {
+  margin: 5px 0 0;
+  color: var(--text-soft);
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.matchup-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 1px solid rgba(0,167,109,.28);
+  border-radius: 11px;
+  background: rgba(0,167,109,.08);
+  color: #007d52;
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.matchup-market-table {
+  overflow: hidden;
+  border: 1px solid #d7d8dc;
+  border-radius: 10px;
+}
+
+.matchup-market-head-row,
+.matchup-market-data-row {
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1.25fr)
+    minmax(78px, .72fr)
+    minmax(110px, 1fr)
+    minmax(78px, .72fr)
+    minmax(72px, .7fr)
+    minmax(72px, .7fr)
+    minmax(76px, .72fr)
+    minmax(76px, .72fr)
+    minmax(82px, .8fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.matchup-market-head-row {
+  min-height: 36px;
+  padding: 0 12px;
+  border-bottom: 1px solid #d7d8dc;
+  background: #ececef;
+  color: #7c7f86;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .45px;
+  text-transform: uppercase;
+}
+
+.matchup-market-data-row {
+  min-height: 58px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e1e4;
+  background: #fafafa;
+  color: var(--dark);
+  font-size: 9px;
+}
+
+.matchup-market-data-row:last-child {
+  border-bottom: 0;
+}
+
+.matchup-market-data-row > span:not(.confidence-badge) {
+  color: var(--text-soft);
+  font-size: 8px;
+}
+
+.matchup-market-team-cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.matchup-team-accent {
+  width: 5px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 4px;
+}
+
+.matchup-market-team-cell > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.matchup-market-team-cell strong {
+  font-size: 13px;
+}
+
+.matchup-market-team-cell small {
+  color: #85888f;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.matchup-best-value-strip {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(3, minmax(0, .75fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.matchup-best-value-strip > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px 11px;
+  border: 1px solid #dbdce0;
+  border-radius: 8px;
+  background: #f2f2f4;
+}
+
+.matchup-best-value-strip span {
+  color: #888b92;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .5px;
+}
+
+.matchup-best-value-strip strong {
+  color: var(--dark);
+  font-size: 12px;
+}
+
+.matchup-team-key {
+  display: flex;
+  gap: 7px;
+}
+
+.matchup-team-key span {
+  position: relative;
+  padding: 5px 8px 5px 15px;
+  border: 1px solid #d6d7db;
+  border-radius: 8px;
+  background: #f1f1f2;
+  color: var(--dark);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.matchup-team-key span::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 5px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--key-color);
+  transform: translateY(-50%);
+}
+
+.matchup-stats-table {
+  overflow: hidden;
+  border: 1px solid #d8d9dd;
+  border-radius: 10px;
+}
+
+.matchup-stats-head,
+.matchup-standard-stat-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(160px, 1.6fr) minmax(80px, 1fr);
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.matchup-stats-head {
+  min-height: 39px;
+  padding: 0 14px;
+  background: #ececef;
+  color: var(--dark);
+  font-size: 9px;
+}
+
+.matchup-stats-head span {
+  color: #898c93;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .6px;
+}
+
+.matchup-standard-stat-row {
+  min-height: 43px;
+  padding: 0 14px;
+  border-top: 1px solid #e2e3e6;
+  background: #fafafa;
+}
+
+.matchup-standard-stat-row:nth-child(odd) {
+  background: #f5f5f6;
+}
+
+.matchup-standard-stat-row strong {
+  color: var(--dark);
+  font-size: 12px;
+}
+
+.matchup-standard-stat-row span {
+  color: var(--text-soft);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.matchup-injury-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.matchup-injury-team-card {
+  overflow: hidden;
+  border: 1px solid #d8d9dd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.matchup-injury-team-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 12px;
+  border-bottom: 1px solid #dedfe2;
+  background: #f0f0f2;
+}
+
+.matchup-injury-team-heading > span {
+  width: 6px;
+  height: 30px;
+  border-radius: 4px;
+}
+
+.matchup-injury-team-heading > div {
+  display: grid;
+  gap: 2px;
+}
+
+.matchup-injury-team-heading strong {
+  color: var(--dark);
+  font-size: 10px;
+}
+
+.matchup-injury-team-heading small {
+  color: #85888f;
+  font-size: 7px;
+}
+
+.matchup-injury-list {
+  display: grid;
+}
+
+.matchup-injury-row {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e5e7;
+}
+
+.matchup-injury-row:last-child {
+  border-bottom: 0;
+}
+
+.matchup-injury-row > span {
+  display: grid;
+  gap: 2px;
+}
+
+.matchup-injury-row strong {
+  color: var(--dark);
+  font-size: 9px;
+}
+
+.matchup-injury-row small {
+  color: #8a8d94;
+  font-size: 7px;
+}
+
+.matchup-injury-row em {
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: rgba(231,185,47,.12);
+  color: #7d6513;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.matchup-injury-empty {
+  padding: 18px 12px;
+  color: #8b8e95;
+  font-size: 8px;
+}
+
+.matchup-banana-mark {
+  font-size: 23px;
+}
+
+.matchup-take-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, .75fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.matchup-take-layout h3 {
+  margin: 0 0 7px;
+  color: var(--dark);
+  font-size: 16px;
+}
+
+.matchup-take-layout p {
+  margin: 0 0 8px;
+  color: var(--text-soft);
+  font-size: 9px;
+  line-height: 1.65;
+}
+
+.matchup-take-note {
+  padding-top: 8px;
+  border-top: 1px solid #e0e1e4;
+  font-size: 8px !important;
+}
+
+.matchup-bottom-line-card {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid #5a5d64;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #41444b, #30333a);
+  color: white;
+}
+
+.matchup-bottom-line-card span {
+  color: var(--yellow-light);
+  font-size: 7px;
+  font-weight: 1000;
+  letter-spacing: .8px;
+}
+
+.matchup-bottom-line-card strong {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.matchup-bottom-line-card small {
+  color: #c1c3c8;
+  font-size: 8px;
+}
+
+.matchup-source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 9px 11px;
+  border: 1px solid #d6d7db;
+  border-radius: 9px;
+  background: #f6f6f7;
+  color: #85888f;
+  font-size: 7px;
+}
+
+.matchup-source-strip b {
+  color: var(--dark);
+}
+
+@media (max-width: 1200px) {
+  .matchup-hybrid-page .retro-hero-expanded {
+    min-height: 430px;
+  }
+
+  .matchup-market-head-row,
+  .matchup-market-data-row {
+    grid-template-columns: 1.1fr .7fr .9fr .7fr .7fr .7fr .7fr .7fr .8fr;
+    gap: 6px;
+  }
+
+  .matchup-best-value-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .retro-hero-context-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .matchup-hybrid-page .retro-scoreboard-context {
+    min-height: 420px;
+  }
+
+  .matchup-market-table {
+    overflow-x: auto;
+  }
+
+  .matchup-market-head-row,
+  .matchup-market-data-row {
+    min-width: 900px;
+  }
+
+  .matchup-injury-grid,
+  .matchup-take-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .matchup-standard-tabs {
+    flex-wrap: wrap;
+  }
+
+  .matchup-standard-tabs > span {
+    width: 100%;
+    margin-left: 0;
+    padding: 4px 7px;
+  }
+
+  .matchup-standard-panel {
+    padding: 13px;
+  }
+
+  .matchup-stats-head,
+  .matchup-standard-stat-row {
+    grid-template-columns: 70px minmax(120px, 1fr) 70px;
+  }
+}
