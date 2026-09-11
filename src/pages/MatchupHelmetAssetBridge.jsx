@@ -49,13 +49,11 @@ function applyAwayHelmet(team) {
   if (!helmet || !position) return;
 
   const [column, row] = position;
-  const cellWidth = 312;
-  const cellHeight = 228;
 
   helmet.classList.add("retro-away-helmet-live");
   helmet.classList.remove("retro-away-helmet-individual");
-  helmet.style.setProperty("--away-helmet-x", `${-column * cellWidth}px`);
-  helmet.style.setProperty("--away-helmet-y", `${-row * cellHeight}px`);
+  helmet.style.setProperty("--away-helmet-column", String(column));
+  helmet.style.setProperty("--away-helmet-row", String(row));
 
   const individualSrc = `/helmets/away/${normalized}_AWAY.png`;
 
