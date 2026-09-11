@@ -7,6 +7,17 @@ const TEAM_ALIASES = {
   WSH: "WAS"
 };
 
+const AWAY_SPRITE_POSITIONS = {
+  BAL: [0, 0], CIN: [1, 0], CLE: [2, 0], PIT: [3, 0],
+  HOU: [0, 1], IND: [1, 1], JAX: [2, 1], TEN: [3, 1],
+  BUF: [0, 2], MIA: [1, 2], NE: [2, 2], NYJ: [3, 2],
+  DEN: [0, 3], LV: [1, 3], LAC: [2, 3], KC: [3, 3],
+  CHI: [0, 4], DET: [1, 4], GB: [2, 4], MIN: [3, 4],
+  ATL: [0, 5], CAR: [1, 5], NO: [2, 5], TB: [3, 5],
+  DAL: [0, 6], NYG: [1, 6], PHI: [2, 6], WAS: [3, 6],
+  ARI: [0, 7], LAR: [1, 7], SF: [2, 7], SEA: [3, 7]
+};
+
 function normalizeTeam(value) {
   const key = String(value || "").trim().toUpperCase();
   return TEAM_ALIASES[key] || key;
@@ -36,9 +47,25 @@ function applyIndividualHelmet(selector, src) {
 
   target.style.backgroundImage = `url("${src}")`;
   target.style.backgroundPosition = "center";
+  target.style.backgroundRepeat = "no-repeat";
   target.style.backgroundSize = "contain";
   target.style.width = "min(260px, 24vw)";
   target.style.height = "190px";
+}
+
+function applyAwaySprite(team) {
+  const target = document.querySelector(".retro-team-away .retro-helmet-sprite");
+  const position = AWAY_SPRITE_POSITIONS[normalizeTeam(team)];
+  if (!target || !position) return;
+
+  const [column, row] = position;
+  target.style.backgroundImage = 'url("/helmets/away/away-helmets-sprite.png")';
+  target.style.backgroundRepeat = "no-repeat";
+  target.style.backgroundSize = "1040px 1536px";
+  target.style.backgroundPosition = `${-column * 260}px ${-row * 192}px`;
+  target.style.width = "260px";
+  target.style.height = "192px";
+  target.style.imageRendering = "pixelated";
 }
 
 function restoreSprite(selector) {
@@ -46,9 +73,12 @@ function restoreSprite(selector) {
   if (!target) return;
 
   target.style.backgroundImage = "";
+  target.style.backgroundPosition = "";
+  target.style.backgroundRepeat = "";
   target.style.backgroundSize = "";
   target.style.width = "";
   target.style.height = "";
+  target.style.imageRendering = "";
 }
 
 export default function MatchupHelmetAssetBridge({ rows = [] }) {
@@ -84,7 +114,9 @@ export default function MatchupHelmetAssetBridge({ rows = [] }) {
           applyIndividualHelmet(".retro-team-away .retro-helmet-sprite", awaySrc);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) applyAwaySprite(teams.away);
+      });
 
     preload(homeSrc)
       .then(() => {
