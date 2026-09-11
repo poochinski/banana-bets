@@ -43,6 +43,7 @@ import SettingsPage from "./pages/SettingsPage";
 import MatchupBreakdownPage from "./pages/MatchupBreakdownPage";
 import InfoTooltip from "./components/InfoTooltip";
 import GuidedTutorial, { TUTORIAL_STORAGE_KEY } from "./components/GuidedTutorial";
+import MoneylineValueFinder from "./components/MoneylineValueFinder";
 
 
 const SNAPSHOT_OPTIONS = [
@@ -2265,7 +2266,8 @@ function Dashboard({
   slotModes,
   setSlotModes,
   pinnedSlots,
-  setPinnedSlots
+  setPinnedSlots,
+  setActivePage
 }) {
   return (
     <>
@@ -2312,13 +2314,19 @@ function Dashboard({
       />
 
       <div className="main-dashboard">
-        <PredictionsTable
-          rows={
-            rows
-          }
-          loading={
-            loading
-          }
+        <MoneylineValueFinder
+          rows={rows}
+          loading={loading}
+          onViewMatchup={(row) => {
+            sessionStorage.setItem(
+              "banana-bets:selected-matchup",
+              row.game_id || row.matchup || ""
+            );
+
+            setActivePage(
+              "Matchup Breakdown"
+            );
+          }}
         />
 
         <aside className="right-dashboard">
@@ -2788,6 +2796,9 @@ export default function App() {
               }
               setPinnedSlots={
                 setPinnedSlots
+              }
+              setActivePage={
+                setActivePage
               }
             />
           ) : activePage ===
