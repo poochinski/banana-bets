@@ -216,7 +216,7 @@ function displayBook(value) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function PixelHelmet({ team }) {
+function PixelHelmet({ team, side = "away" }) {
   const normalized = normalizeTeam(team);
   const position = SPRITE_POSITIONS[normalized];
 
@@ -225,13 +225,16 @@ function PixelHelmet({ team }) {
   }
 
   const [column, row] = position;
+  const xPositions = ["0%", "33.333333%", "66.666667%", "100%"];
+  const yPositions = ["0%", "14.285714%", "28.571429%", "42.857143%", "57.142857%", "71.428571%", "85.714286%", "100%"];
+
   return (
     <div
-      className="retro-helmet-sprite"
+      className={`retro-helmet-direct retro-helmet-${side}`}
       role="img"
-      aria-label={`${normalized} pixel football helmet`}
+      aria-label={`${normalized} ${side} pixel football helmet`}
       style={{
-        backgroundPosition: `${-column * 230}px ${-row * 185}px`
+        backgroundPosition: `${xPositions[column]} ${yPositions[row]}`
       }}
     />
   );
@@ -463,7 +466,7 @@ export default function MatchupRetroPage({ rows, season, week }) {
         <div className="retro-stadium-lights retro-stadium-lights-right" />
 
         <div className="retro-team-side retro-team-away">
-          <PixelHelmet team={away} />
+          <PixelHelmet team={away} side="away" />
           <span className="retro-team-city">AWAY</span>
           <h2>{TEAM_NAMES[away] || away}</h2>
           <b>{context?.awayRecord || "—"}</b>
@@ -489,7 +492,7 @@ export default function MatchupRetroPage({ rows, season, week }) {
         </div>
 
         <div className="retro-team-side retro-team-home">
-          <PixelHelmet team={home} />
+          <PixelHelmet team={home} side="home" />
           <span className="retro-team-city">HOME</span>
           <h2>{TEAM_NAMES[home] || home}</h2>
           <b>{context?.homeRecord || "—"}</b>
