@@ -41,7 +41,7 @@ const STEPS = [
     selector: '[data-tour="bet-finder"]',
     title: "Model vs. Market",
     text:
-      "The Bet Finder lets you compare sportsbook odds, Banana fair odds, model probability, market-implied probability, edge, EV, and confidence side by side."
+      "The Moneyline Value Finder starts with a simple explanation of where Banana disagrees with the market. Switch to Advanced Table when you want every underlying number side by side."
   },
   {
     selector: '[data-tour="model-status"]',
