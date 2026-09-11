@@ -36,23 +36,10 @@ import {
   getBetFinder
 } from "./api";
 
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-const NAV_ITEMS = [
-  { name: "Dashboard", icon: Home },
-  { name: "Game Predictions", icon: Gamepad2 },
-  { name: "Spreads & Totals", icon: SlidersHorizontal },
-  { name: "Moneylines", icon: CircleDollarSign },
-  { name: "Player Props", icon: Users, badge: "Soon" },
-  { name: "Team Analytics", icon: BarChart3 },
-  { name: "Model Insights", icon: BrainCircuit },
-  { name: "Trends & Angles", icon: TrendingUp },
-  { name: "My Bets / Tracking", icon: ShieldCheck },
-  { name: "Settings", icon: Settings }
-];
+import { NAV_ITEMS } from "./config/navigation";
+import usePageRoute from "./hooks/usePageRoute";
+import ProductPage from "./pages/ProductPage";
+import SettingsPage from "./pages/SettingsPage";
 
 
 const SNAPSHOT_OPTIONS = [
@@ -2374,10 +2361,7 @@ export default function App() {
   const [
     activePage,
     setActivePage
-  ] =
-    useState(
-      "Dashboard"
-    );
+  ] = usePageRoute("Dashboard");
 
   const [
     mobileOpen,
@@ -2732,8 +2716,11 @@ export default function App() {
                 setPinnedSlots
               }
             />
+          ) : activePage ===
+            "Settings" ? (
+            <SettingsPage />
           ) : (
-            <Placeholder
+            <ProductPage
               page={
                 activePage
               }
