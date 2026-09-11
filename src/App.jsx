@@ -44,6 +44,8 @@ import MatchupBreakdownPage from "./pages/MatchupBreakdownPage";
 import InfoTooltip from "./components/InfoTooltip";
 import GuidedTutorial, { TUTORIAL_STORAGE_KEY } from "./components/GuidedTutorial";
 import MoneylineValueFinder from "./components/MoneylineValueFinder";
+import BetBuilderPage from "./pages/BetBuilderPage";
+import useBetBuilder, { moneylineRowToLeg } from "./hooks/useBetBuilder";
 
 
 const SNAPSHOT_OPTIONS = [
@@ -671,7 +673,8 @@ function Sidebar({
   activePage,
   setActivePage,
   mobileOpen,
-  setMobileOpen
+  setMobileOpen,
+  betCount
 }) {
   return (
     <>
@@ -758,11 +761,15 @@ function Sidebar({
                     {item.name}
                   </span>
 
-                  {item.badge && (
+                  {(item.name === "Bet Builder" && betCount > 0) ? (
+                    <span className="nav-badge builder-count-badge">
+                      {betCount}
+                    </span>
+                  ) : item.badge ? (
                     <span className="nav-badge">
                       {item.badge}
                     </span>
-                  )}
+                  ) : null}
                 </button>
               );
             }
@@ -2395,7 +2402,9 @@ function Dashboard({
   setSlotModes,
   pinnedSlots,
   setPinnedSlots,
-  setActivePage
+  setActivePage,
+  addBuilderLeg,
+  builderLegIds
 }) {
   return (
     <>
@@ -2459,6 +2468,16 @@ function Dashboard({
               "Matchup Breakdown"
             );
           }}
+          onAddToBuilder={(row) => {
+            addBuilderLeg(
+              moneylineRowToLeg(
+                row
+              )
+            );
+          }}
+          builderLegIds={
+            builderLegIds
+          }
         />
       </div>
     </>
@@ -2504,6 +2523,26 @@ export default function App() {
     activePage,
     setActivePage
   ] = usePageRoute("Dashboard");
+
+  const {
+    legs: builderLegs,
+    addLeg: addBuilderLeg,
+    removeLeg: removeBuilderLeg,
+    clearLegs: clearBuilderLegs,
+    summary: builderSummary
+  } = useBetBuilder();
+
+  const builderLegIds =
+    useMemo(
+      () =>
+        new Set(
+          builderLegs.map(
+            (leg) => leg.id
+          )
+        ),
+      [builderLegs]
+    );
+
 
   const [
     mobileOpen,
@@ -2833,6 +2872,9 @@ export default function App() {
         setMobileOpen={
           setMobileOpen
         }
+        betCount={
+          builderLegs.length
+        }
       />
 
       <div className="site">
@@ -2915,6 +2957,41 @@ export default function App() {
               setActivePage={
                 setActivePage
               }
+              addBuilderLeg={
+                addBuilderLeg
+              }
+              builderLegIds={
+                builderLegIds
+              }
+            />
+          ) : activePage ===
+            "Bet Builder" ? (
+            <BetBuilderPage
+              legs={builderLegs}
+              summary={builderSummary}
+              onRemove={
+                removeBuilderLeg
+              }
+              onClear={
+                clearBuilderLegs
+              }
+              onBrowse={() =>
+                setActivePage(
+                  "Dashboard"
+                )
+              }
+              onResearch={(leg) => {
+                sessionStorage.setItem(
+                  "banana-bets:selected-matchup",
+                  leg.gameId ||
+                    leg.matchup ||
+                    ""
+                );
+
+                setActivePage(
+                  "Matchup Breakdown"
+                );
+              }}
             />
           ) : activePage ===
             "Matchup Breakdown" ? (
