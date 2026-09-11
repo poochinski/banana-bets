@@ -3015,3 +3015,266 @@ footer > div:last-child {
     flex: 1;
   }
 }
+
+
+/* =========================================================
+   EDUCATION / TOOLTIPS
+   ========================================================= */
+
+.info-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.info-tooltip-button {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8b8e95;
+  cursor: help;
+}
+
+.info-tooltip-button:hover,
+.info-tooltip-button:focus-visible {
+  color: var(--blue);
+  outline: none;
+}
+
+.info-tooltip-popover {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 7px);
+  left: 50%;
+  width: 245px;
+  transform: translateX(-50%);
+  padding: 10px 11px;
+  border: 1px solid #696c73;
+  border-radius: 9px;
+  background: #303238;
+  box-shadow: 0 8px 24px rgba(30, 32, 37, 0.24);
+  color: #e8e9eb;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: normal;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.info-tooltip-popover strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--yellow-light);
+  font-size: 9px;
+}
+
+.info-tooltip-popover span {
+  color: #d0d2d6;
+}
+
+.metrics > [data-tour] {
+  min-width: 0;
+}
+
+.metrics > [data-tour] .metric-card {
+  height: 100%;
+}
+
+
+/* =========================================================
+   GUIDED TUTORIAL
+   ========================================================= */
+
+.tutorial-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.tutorial-dimmer {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 26, 30, 0.64);
+  backdrop-filter: blur(1px);
+  pointer-events: auto;
+}
+
+.tutorial-highlight {
+  position: fixed;
+  z-index: 502;
+  border: 2px solid var(--yellow-light);
+  border-radius: 15px;
+  box-shadow:
+    0 0 0 5px rgba(246, 207, 76, 0.12),
+    0 0 28px rgba(246, 207, 76, 0.26);
+  pointer-events: none;
+  transition:
+    top .2s ease,
+    left .2s ease,
+    width .2s ease,
+    height .2s ease;
+}
+
+.tutorial-card {
+  position: fixed;
+  z-index: 503;
+  width: min(360px, calc(100vw - 36px));
+  padding: 16px;
+  border: 1px solid #73767d;
+  border-radius: 13px;
+  background:
+    linear-gradient(145deg, #41444b, #292c31);
+  box-shadow: 0 16px 42px rgba(18, 20, 24, .35);
+  color: white;
+  pointer-events: auto;
+}
+
+.tutorial-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tutorial-card-header > span {
+  color: var(--yellow-light);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+}
+
+.tutorial-card-header button {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #5f6269;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  color: #bfc1c6;
+  cursor: pointer;
+}
+
+.tutorial-card h2 {
+  margin: 12px 0 7px;
+  color: white;
+  font-size: 20px;
+}
+
+.tutorial-card p {
+  margin: 0;
+  color: #c9cbd0;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+.tutorial-progress {
+  display: flex;
+  gap: 5px;
+  margin: 15px 0;
+}
+
+.tutorial-progress span {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: #5d6067;
+}
+
+.tutorial-progress span.done {
+  background: rgba(231,185,47,.5);
+}
+
+.tutorial-progress span.active {
+  background: var(--yellow);
+}
+
+.tutorial-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tutorial-actions > div {
+  display: flex;
+  gap: 6px;
+}
+
+.tutorial-skip,
+.tutorial-nav {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.tutorial-skip {
+  border: 0;
+  background: transparent;
+  color: #9ea1a8;
+}
+
+.tutorial-nav {
+  border: 1px solid #65686f;
+  background: #383b41;
+  color: white;
+}
+
+.tutorial-nav.primary {
+  border-color: #d2a91f;
+  background: var(--yellow);
+  color: #33353a;
+}
+
+.tutorial-nav:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+@media (max-width: 680px) {
+  .tutorial-card {
+    left: 18px !important;
+    right: 18px;
+    width: auto;
+  }
+
+  .tutorial-highlight {
+    border-radius: 10px;
+  }
+
+  .tutorial-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tutorial-actions > div {
+    width: 100%;
+  }
+
+  .tutorial-nav {
+    flex: 1;
+  }
+
+  .tutorial-skip {
+    order: 2;
+  }
+
+  .info-tooltip-popover {
+    width: 210px;
+  }
+}
