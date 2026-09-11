@@ -225,14 +225,16 @@ function PixelHelmet({ team, side = "away" }) {
   }
 
   const [column, row] = position;
+  const xPositions = ["0%", "33.333333%", "66.666667%", "100%"];
+  const yPositions = ["0%", "14.285714%", "28.571429%", "42.857143%", "57.142857%", "71.428571%", "85.714286%", "100%"];
+
   return (
     <div
       className={`retro-helmet-direct retro-helmet-${side}`}
       role="img"
       aria-label={`${normalized} ${side} pixel football helmet`}
       style={{
-        "--helmet-column": column,
-        "--helmet-row": row
+        backgroundPosition: `${xPositions[column]} ${yPositions[row]}`
       }}
     />
   );
