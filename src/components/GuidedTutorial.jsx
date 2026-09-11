@@ -84,7 +84,7 @@ export default function GuidedTutorial({
       }
 
       element.scrollIntoView({
-        behavior: "smooth",
+        behavior: "auto",
         block: "center"
       });
 
