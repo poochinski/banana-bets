@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Activity, AlertTriangle, BarChart3, BrainCircuit, LineChart } from "lucide-react";
 import {
   getBets,
@@ -93,6 +94,21 @@ function ExplanationCard({ row }) {
   );
 }
 
+function ensurePortalHost({ id, beforeSelector }) {
+  let host = document.getElementById(id);
+  if (host) return host;
+
+  const before = document.querySelector(beforeSelector);
+  const parent = before?.parentNode;
+  if (!before || !parent) return null;
+
+  host = document.createElement("div");
+  host.id = id;
+  host.className = "matchup-v2-integrated-host";
+  parent.insertBefore(host, before);
+  return host;
+}
+
 export default function MatchupApiV2Insights({ rows = [], season, week }) {
   const fallbackGameId = rows.find((row) => row?.game_id)?.game_id || "";
   const [gameId, setGameId] = useState(
@@ -105,6 +121,34 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
   const [performance, setPerformance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [researchHost, setResearchHost] = useState(null);
+  const [validationHost, setValidationHost] = useState(null);
+
+  useEffect(() => {
+    const mountPortals = () => {
+      setResearchHost(
+        ensurePortalHost({
+          id: "matchup-v2-research-host",
+          beforeSelector: "#matchup-stats"
+        })
+      );
+      setValidationHost(
+        ensurePortalHost({
+          id: "matchup-v2-validation-host",
+          beforeSelector: ".matchup-take-standard"
+        })
+      );
+    };
+
+    mountPortals();
+    const timer = window.setTimeout(mountPortals, 100);
+
+    return () => {
+      window.clearTimeout(timer);
+      document.getElementById("matchup-v2-research-host")?.remove();
+      document.getElementById("matchup-v2-validation-host")?.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -137,8 +181,7 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
       setSpreadRows(results[3].status === "fulfilled" ? results[3].value?.rows || [] : []);
       setPerformance(results[4].status === "fulfilled" ? results[4].value?.rows?.[0] || null : null);
 
-      const failed = results.filter((result) => result.status === "rejected");
-      if (failed.length === results.length) {
+      if (results.every((result) => result.status === "rejected")) {
         setError("Banana API v2 data could not be loaded for this matchup.");
       }
       setLoading(false);
@@ -162,13 +205,12 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
 
   if (!gameId) return null;
 
-  return (
-    <section className="matchup-v2-insights">
-      <div className="matchup-v2-heading">
+  const researchContent = (
+    <div className="matchup-v2-insights matchup-v2-inline">
+      <div className="matchup-v2-flow-label">
         <div>
-          <span className="panel-kicker">BANANA API V2</span>
-          <h2>Model Intelligence</h2>
-          <p>Direct website output from the workbook's new game, model-breakdown, explanation, spread, and validation feeds.</p>
+          <span className="panel-kicker">MODEL INTELLIGENCE</span>
+          <strong>Why the numbers look the way they do</strong>
         </div>
         <span className="matchup-live-pill"><Activity size={13} /> {loading ? "SYNCING" : "LIVE"}</span>
       </div>
@@ -207,7 +249,7 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
             <div className="v2-warning">
               <AlertTriangle size={16} />
               <div>
-                <strong>Week 1 sample warning</strong>
+                <strong>Early-season sample warning</strong>
                 <span>No current-season games are in the fundamentals sample yet. Banana is intentionally leaning more heavily on calibration and the sharp market.</span>
               </div>
             </div>
@@ -239,7 +281,7 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
             <div>
               <span className="panel-kicker">SPREAD MARKET</span>
               <h2>Best Current Spread Prices</h2>
-              <p>Cover probability, fair price and EV come directly from 61_OUTPUT_BETS. Market probability/edge are not shown because those fields are currently blank for spreads.</p>
+              <p>Cover probability, fair price and EV come directly from the workbook. Blank spread market-probability/edge fields stay blank instead of being invented in React.</p>
             </div>
             <LineChart size={22} />
           </div>
@@ -262,26 +304,33 @@ export default function MatchupApiV2Insights({ rows = [], season, week }) {
           </div>
         </section>
       ) : null}
+    </div>
+  );
 
-      {performance ? (
-        <section className="panel matchup-standard-panel v2-panel v2-performance-panel">
-          <div className="panel-header matchup-standard-header">
-            <div>
-              <span className="panel-kicker">MODEL VALIDATION</span>
-              <h2>Held-Out Performance</h2>
-              <p>Training {performance.train_seasons || "—"} · testing {performance.test_season || "—"} · calibration {String(performance.active_calibration_method || "—").toUpperCase()}.</p>
-            </div>
-          </div>
-          <div className="v2-stat-grid v2-performance-grid">
-            <StatCard label="TEST GAMES" value={performance.n_test ?? "—"} />
-            <StatCard label="LOGISTIC ACCURACY" value={pct(performance.logistic_accuracy)} />
-            <StatCard label="CALIBRATED ACCURACY" value={pct(performance.calibrated_accuracy)} />
-            <StatCard label="BRIER SCORE" value={numberOrNull(performance.calibrated_brier)?.toFixed(4) || "—"} />
-            <StatCard label="REGRESSION MAE" value={numberOrNull(performance.regression_mae)?.toFixed(2) || "—"} note="Points" />
-            <StatCard label="REGRESSION RMSE" value={numberOrNull(performance.regression_rmse)?.toFixed(2) || "—"} note="Points" />
-          </div>
-        </section>
-      ) : null}
+  const validationContent = performance ? (
+    <section className="panel matchup-standard-panel v2-panel v2-performance-panel matchup-v2-validation-inline">
+      <div className="panel-header matchup-standard-header">
+        <div>
+          <span className="panel-kicker">MODEL VALIDATION</span>
+          <h2>How Banana has performed out of sample</h2>
+          <p>Training {performance.train_seasons || "—"} · testing {performance.test_season || "—"} · calibration {String(performance.active_calibration_method || "—").toUpperCase()}.</p>
+        </div>
+      </div>
+      <div className="v2-stat-grid v2-performance-grid">
+        <StatCard label="TEST GAMES" value={performance.n_test ?? "—"} />
+        <StatCard label="LOGISTIC ACCURACY" value={pct(performance.logistic_accuracy)} />
+        <StatCard label="CALIBRATED ACCURACY" value={pct(performance.calibrated_accuracy)} />
+        <StatCard label="BRIER SCORE" value={numberOrNull(performance.calibrated_brier)?.toFixed(4) || "—"} />
+        <StatCard label="REGRESSION MAE" value={numberOrNull(performance.regression_mae)?.toFixed(2) || "—"} note="Points" />
+        <StatCard label="REGRESSION RMSE" value={numberOrNull(performance.regression_rmse)?.toFixed(2) || "—"} note="Points" />
+      </div>
     </section>
+  ) : null;
+
+  return (
+    <>
+      {researchHost ? createPortal(researchContent, researchHost) : null}
+      {validationHost && validationContent ? createPortal(validationContent, validationHost) : null}
+    </>
   );
 }
