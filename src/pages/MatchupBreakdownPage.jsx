@@ -511,7 +511,11 @@ export default function MatchupBreakdownPage({
     selectedGameId,
     setSelectedGameId
   ] =
-    useState("");
+    useState(() =>
+      sessionStorage.getItem(
+        "banana-bets:selected-matchup"
+      ) || ""
+    );
 
   const selected =
     games.find(
@@ -569,12 +573,19 @@ export default function MatchupBreakdownPage({
             }
             onChange={(
               event
-            ) =>
+            ) => {
+              const value =
+                event.target.value;
+
               setSelectedGameId(
-                event.target
-                  .value
-              )
-            }
+                value
+              );
+
+              sessionStorage.setItem(
+                "banana-bets:selected-matchup",
+                value
+              );
+            }}
           >
             {games.length ===
               0 && (
