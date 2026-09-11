@@ -1,0 +1,37 @@
+.matchup-v2-integrated-host {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.matchup-v2-inline {
+  margin-top: 0;
+}
+
+.matchup-v2-flow-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 2px 0;
+}
+
+.matchup-v2-flow-label > div {
+  display: grid;
+  gap: 3px;
+}
+
+.matchup-v2-flow-label strong {
+  color: var(--dark);
+  font-size: 13px;
+}
+
+.matchup-v2-validation-inline {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .matchup-v2-flow-label {
+    align-items: flex-start;
+  }
+}
