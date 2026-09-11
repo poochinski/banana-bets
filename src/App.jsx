@@ -40,6 +40,8 @@ import { NAV_ITEMS } from "./config/navigation";
 import usePageRoute from "./hooks/usePageRoute";
 import ProductPage from "./pages/ProductPage";
 import SettingsPage from "./pages/SettingsPage";
+import InfoTooltip from "./components/InfoTooltip";
+import GuidedTutorial, { TUTORIAL_STORAGE_KEY } from "./components/GuidedTutorial";
 
 
 const SNAPSHOT_OPTIONS = [
@@ -1425,7 +1427,7 @@ function Hero({
 
 
   return (
-    <section className="hero">
+    <section className="hero" data-tour="snapshot">
       <div className="hero-heading-row">
         <div>
           <div className="eyebrow">
@@ -1543,7 +1545,7 @@ function Hero({
         </div>
       )}
 
-      <div className="hero-highlight-grid">
+      <div className="hero-highlight-grid" data-tour="snapshot-cards">
         {loading ? (
           Array.from({
             length: 4
@@ -1703,6 +1705,7 @@ function Metrics({
 
   return (
     <section className="metrics">
+      <div data-tour="best-ev">
       <MetricCard
         icon={
           <TrendingUp
@@ -1719,7 +1722,9 @@ function Metrics({
         label="Best EV"
         accent="green-accent"
       />
+      </div>
 
+      <div data-tour="threshold">
       <MetricCard
         icon={
           <Target
@@ -1732,6 +1737,7 @@ function Metrics({
         label="Threshold Plays"
         accent="yellow-accent"
       />
+      </div>
 
       <MetricCard
         icon={
@@ -1785,7 +1791,7 @@ function PredictionsTable({
   loading
 }) {
   return (
-    <section className="panel predictions-panel">
+    <section className="panel predictions-panel" data-tour="bet-finder">
       <div className="panel-header">
         <div>
           <span className="panel-kicker">
@@ -1823,27 +1829,45 @@ function PredictionsTable({
               </th>
 
               <th>
-                Fair
+                Model Fair Odds{" "}
+                <InfoTooltip label="Model Fair Odds">
+                  The sportsbook price implied by Banana's estimated probability before sportsbook margin.
+                </InfoTooltip>
               </th>
 
               <th>
-                Model
+                Model{" "}
+                <InfoTooltip label="Model Probability">
+                  Banana's estimated probability for this side to win. It is an estimate, not a guarantee.
+                </InfoTooltip>
               </th>
 
               <th>
-                Market
+                Market{" "}
+                <InfoTooltip label="Market Probability">
+                  The probability implied by the sportsbook's offered price.
+                </InfoTooltip>
               </th>
 
               <th>
-                Edge (PP)
+                Edge (PP){" "}
+                <InfoTooltip label="Model Edge">
+                  The difference in percentage points between Banana's probability and the market-implied probability.
+                </InfoTooltip>
               </th>
 
               <th>
-                EV
+                EV{" "}
+                <InfoTooltip label="Expected Value">
+                  Theoretical value of the sportsbook price based on Banana's estimated probability. Positive EV can still lose.
+                </InfoTooltip>
               </th>
 
               <th>
-                Conf.
+                Conf.{" "}
+                <InfoTooltip label="Confidence">
+                  Confidence describes support for the model estimate. It is different from win probability.
+                </InfoTooltip>
               </th>
             </tr>
           </thead>
@@ -2024,7 +2048,7 @@ function ModelStatus({
     );
 
   return (
-    <section className="panel">
+    <section className="panel" data-tour="model-status">
       <span className="panel-kicker">
         CURRENT MODEL STATE
       </span>
@@ -2370,6 +2394,12 @@ export default function App() {
     useState(false);
 
   const [
+    tutorialOpen,
+    setTutorialOpen
+  ] =
+    useState(false);
+
+  const [
     season,
     setSeason
   ] =
@@ -2458,6 +2488,49 @@ export default function App() {
       null,
       null
     ]);
+
+
+  useEffect(() => {
+    function startTutorial() {
+      setActivePage("Dashboard");
+
+      setTimeout(
+        () => setTutorialOpen(true),
+        180
+      );
+    }
+
+    window.addEventListener(
+      "banana-bets:start-tutorial",
+      startTutorial
+    );
+
+    return () => {
+      window.removeEventListener(
+        "banana-bets:start-tutorial",
+        startTutorial
+      );
+    };
+  }, [setActivePage]);
+
+
+  useEffect(() => {
+    if (
+      activePage !== "Dashboard" ||
+      localStorage.getItem(
+        TUTORIAL_STORAGE_KEY
+      ) === "true"
+    ) {
+      return undefined;
+    }
+
+    const timer = setTimeout(
+      () => setTutorialOpen(true),
+      650
+    );
+
+    return () => clearTimeout(timer);
+  }, [activePage]);
 
 
   const weekNumber =
@@ -2727,6 +2800,13 @@ export default function App() {
             />
           )}
         </main>
+
+        <GuidedTutorial
+          open={tutorialOpen}
+          onClose={() =>
+            setTutorialOpen(false)
+          }
+        />
 
         <footer>
           <div className="footer-brand">
