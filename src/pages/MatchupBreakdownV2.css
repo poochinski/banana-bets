@@ -1,0 +1,293 @@
+/* =========================================================
+   MATCHUP BREAKDOWN V2 — LIVE CONTEXT + REAL STATS
+   ========================================================= */
+
+.matchup-page-v2 {
+  gap: 14px;
+}
+
+.matchup-data-warning {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 11px;
+  border: 1px solid rgba(231,185,47,.42);
+  border-radius: 9px;
+  background: rgba(231,185,47,.10);
+  color: #78611d;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.matchup-game-context-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.matchup-context-fact {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid #d3d4d8;
+  border-radius: 11px;
+  background: rgba(249,249,249,.96);
+  box-shadow: 0 4px 12px rgba(39,42,47,.045);
+}
+
+.matchup-context-fact-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #e8e9eb;
+  color: var(--blue);
+}
+
+.matchup-context-fact > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.matchup-context-fact small {
+  color: #8d9097;
+  font-size: 6px;
+  font-weight: 1000;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.matchup-context-fact strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dark);
+  font-size: 10px;
+}
+
+.matchup-context-fact span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #777a81;
+  font-size: 7px;
+}
+
+.research-source-badge {
+  width: fit-content;
+  padding: 5px 8px;
+  border: 1px solid rgba(8,98,217,.24);
+  border-radius: 10px;
+  background: rgba(8,98,217,.07);
+  color: var(--blue);
+  font-size: 7px;
+  font-weight: 1000;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.matchup-page-v2 .matchup-stat-row > strong:first-child {
+  text-align: left;
+}
+
+.matchup-page-v2 .matchup-stat-row > strong:last-child {
+  text-align: right;
+}
+
+.matchup-page-v2 .stat-pending {
+  color: #a9abb0;
+}
+
+.matchup-bottom-grid-v2 {
+  align-items: stretch;
+}
+
+.matchup-environment-card,
+.matchup-injuries-card {
+  min-height: 230px;
+}
+
+.matchup-environment-card .panel-header,
+.matchup-injuries-card .panel-header {
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.matchup-environment-card .panel-header svg,
+.matchup-injuries-card .panel-header svg {
+  color: var(--blue);
+}
+
+.matchup-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.matchup-weather-grid .matchup-context-fact {
+  align-items: flex-start;
+  min-height: 86px;
+  background: #f3f3f4;
+}
+
+.matchup-weather-loading,
+.matchup-weather-indoor {
+  min-height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: 1px dashed #c9cace;
+  border-radius: 10px;
+  background: #f4f4f5;
+  color: #777a81;
+  text-align: center;
+  font-size: 9px;
+}
+
+.matchup-weather-indoor > div {
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+.matchup-weather-indoor strong {
+  color: var(--dark);
+  font-size: 11px;
+}
+
+.matchup-weather-indoor span {
+  color: #777a81;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.matchup-injury-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.matchup-injury-team {
+  overflow: hidden;
+  border: 1px solid #d9dade;
+  border-radius: 10px;
+  background: #f7f7f8;
+}
+
+.matchup-injury-team-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  border-bottom: 1px solid #dcdddf;
+  background: #eeeeef;
+}
+
+.matchup-injury-team-title strong {
+  color: var(--dark);
+  font-size: 11px;
+}
+
+.matchup-injury-team-title span {
+  color: #888b92;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.matchup-injury-list {
+  display: grid;
+}
+
+.matchup-injury-list > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e2e3e5;
+}
+
+.matchup-injury-list > div:last-child {
+  border-bottom: 0;
+}
+
+.matchup-injury-list span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #55585f;
+  font-size: 8px;
+}
+
+.matchup-injury-list strong {
+  color: #8a6b00;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.matchup-injury-list small {
+  grid-column: 1 / -1;
+  color: #8a8d94;
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+.matchup-injury-empty {
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  color: #8a8d94;
+  font-size: 8px;
+  text-align: center;
+}
+
+.matchup-source-note {
+  margin: 10px 0 0;
+  color: #8a8d94;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.matchup-source-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 9px 11px;
+  border: 1px solid #d5d6da;
+  border-radius: 9px;
+  background: #f2f2f3;
+  color: #777a81;
+  font-size: 7px;
+}
+
+.matchup-source-bar b {
+  color: #55585f;
+}
+
+@media (max-width: 1000px) {
+  .matchup-weather-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .matchup-game-context-strip,
+  .matchup-injury-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .matchup-source-bar {
+    flex-direction: column;
+  }
+}
