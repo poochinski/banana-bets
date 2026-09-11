@@ -1,0 +1,868 @@
+.retro-matchup-page {
+  --retro-bg: #07121f;
+  --retro-panel: #0d1b2a;
+  --retro-panel-2: #13263a;
+  --retro-line: #637486;
+  --retro-soft: #9aabbc;
+  --retro-yellow: #f3c51c;
+  --retro-green: #4df27c;
+  --retro-red: #ff5a64;
+  --retro-blue: #65b9ff;
+  display: grid;
+  gap: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.retro-matchup-page * {
+  box-sizing: border-box;
+}
+
+.retro-matchup-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid #bcc1c8;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f3f4f6, #e2e4e7);
+}
+
+.retro-kicker {
+  display: block;
+  color: #4a5058;
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: 1.4px;
+}
+
+.retro-matchup-toolbar p {
+  margin: 4px 0 0;
+  color: #737982;
+  font-family: inherit;
+  font-size: 8px;
+}
+
+.retro-matchup-toolbar label {
+  width: min(360px, 38vw);
+  display: grid;
+  gap: 5px;
+}
+
+.retro-matchup-toolbar label > span {
+  color: #6a7078;
+  font-size: 7px;
+  font-weight: 1000;
+  letter-spacing: .8px;
+}
+
+.retro-matchup-toolbar select {
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid #9097a1;
+  border-radius: 7px;
+  background: #f9fafb;
+  color: #17202a;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.retro-hero {
+  position: relative;
+  min-height: 330px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, .9fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  padding: 30px 24px 44px;
+  border: 3px solid #26394e;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(5, 15, 28, .28), rgba(5, 15, 28, .68)),
+    radial-gradient(circle at 50% 8%, rgba(99, 155, 245, .28), transparent 30%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 2px, transparent 2px 18px),
+    linear-gradient(180deg, #123462 0 38%, #10263e 38% 58%, #173c31 58% 100%);
+  box-shadow:
+    inset 0 0 0 2px #9aa7b5,
+    inset 0 0 0 5px #0b1724,
+    0 7px 22px rgba(26, 31, 39, .18);
+}
+
+.retro-hero::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(255,255,255,.35) 49.8% 50.2%, transparent 50.2%),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(255,255,255,.12) 31px 33px),
+    linear-gradient(180deg, rgba(36, 101, 66, .58), rgba(22, 70, 45, .86));
+  opacity: .82;
+  pointer-events: none;
+}
+
+.retro-stadium-lights {
+  position: absolute;
+  top: 24px;
+  width: 165px;
+  height: 18px;
+  background: repeating-linear-gradient(90deg, #f7fbff 0 9px, #8cbcff 9px 13px, transparent 13px 19px);
+  filter: drop-shadow(0 0 9px #9dcaff);
+  opacity: .9;
+}
+
+.retro-stadium-lights-left { left: 20px; }
+.retro-stadium-lights-right { right: 20px; }
+
+.retro-team-side {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.retro-helmet-sprite {
+  width: 230px;
+  height: 185px;
+  background-image: url("/pixel-helmets.png");
+  background-repeat: no-repeat;
+  background-size: 920px 1480px;
+  image-rendering: pixelated;
+  filter:
+    drop-shadow(0 8px 0 rgba(0, 0, 0, .25))
+    drop-shadow(0 0 12px rgba(255,255,255,.08));
+}
+
+.retro-helmet-fallback {
+  width: 210px;
+  height: 160px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #9ca8b4;
+  background: #d9dce0;
+  color: #18202b;
+  font-size: 30px;
+  font-weight: 1000;
+}
+
+.retro-team-city {
+  margin-top: -8px;
+  color: #cbd8e6;
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: 1.4px;
+}
+
+.retro-team-side h2 {
+  margin: 2px 0 1px;
+  color: white;
+  font-size: clamp(22px, 2.4vw, 35px);
+  line-height: .94;
+  letter-spacing: -1px;
+  text-shadow:
+    2px 0 0 #0b1320,
+    -2px 0 0 #0b1320,
+    0 2px 0 #0b1320,
+    0 -2px 0 #0b1320,
+    3px 3px 0 var(--away-accent);
+}
+
+.retro-team-home h2 {
+  text-shadow:
+    2px 0 0 #0b1320,
+    -2px 0 0 #0b1320,
+    0 2px 0 #0b1320,
+    0 -2px 0 #0b1320,
+    3px 3px 0 var(--home-accent);
+}
+
+.retro-team-side > b {
+  margin-top: 4px;
+  color: #e8f0f8;
+  font-size: 13px;
+}
+
+.retro-team-side > em {
+  margin-top: 7px;
+  padding: 4px 18px;
+  border: 1px solid rgba(255,255,255,.32);
+  background: var(--away-accent);
+  color: white;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 1000;
+  letter-spacing: 1px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+}
+
+.retro-team-home > em {
+  background: var(--home-accent);
+}
+
+.retro-scoreboard {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 260px;
+  padding: 22px 24px 18px;
+  border: 3px solid #aab5c1;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #111f2e, #09131e);
+  box-shadow:
+    inset 0 0 0 4px #22364a,
+    inset 0 0 0 6px #03080e,
+    0 7px 0 rgba(0,0,0,.34),
+    0 0 22px rgba(0,0,0,.28);
+  text-align: center;
+}
+
+.retro-scoreboard::before,
+.retro-scoreboard::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 66%;
+  transform: translateY(-50%);
+  border: 3px solid #9aa7b4;
+  background: #152437;
+  box-shadow: inset 0 0 0 2px #07101a;
+}
+
+.retro-scoreboard::before { left: -18px; }
+.retro-scoreboard::after { right: -18px; }
+
+.retro-board-brand {
+  position: absolute;
+  top: -16px;
+  padding: 5px 16px;
+  border: 2px solid #8e9aa7;
+  background: #0a1623;
+  color: var(--retro-yellow);
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: 1.2px;
+}
+
+.retro-scoreboard h1 {
+  margin: 0 0 8px;
+  color: var(--retro-yellow);
+  font-size: clamp(22px, 2.2vw, 31px);
+  line-height: .9;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 #664e00;
+}
+
+.retro-board-week {
+  min-width: 130px;
+  margin: 2px 0 7px;
+  padding: 4px 12px;
+  border: 1px solid #8190a0;
+  background: #121e2b;
+  color: #f2f5f8;
+  font-size: 9px;
+  font-weight: 1000;
+  letter-spacing: 1.5px;
+}
+
+.retro-scoreboard > strong {
+  color: #e9edf2;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.retro-scoreboard > b {
+  margin-top: 3px;
+  color: white;
+  font-size: 10px;
+  letter-spacing: .7px;
+}
+
+.retro-scoreboard > span:not(.retro-board-brand) {
+  color: #aebdca;
+  font-size: 8px;
+}
+
+.retro-dot-divider {
+  width: 85%;
+  height: 2px;
+  margin: 9px 0 6px;
+  background: repeating-linear-gradient(90deg, #748496 0 7px, transparent 7px 13px);
+}
+
+.retro-board-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: #edf5ff;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.retro-scoreboard small {
+  margin-top: 3px;
+  color: #a9b6c3;
+  font-size: 7px;
+}
+
+.retro-field-line {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-top: 1px solid rgba(255,255,255,.16);
+  background: rgba(7, 20, 31, .72);
+  color: rgba(226, 237, 228, .72);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.retro-field-line i {
+  color: var(--retro-yellow);
+  font-style: normal;
+}
+
+.retro-tabs {
+  display: flex;
+  align-items: stretch;
+  min-height: 40px;
+  overflow: hidden;
+  border: 2px solid #586a7c;
+  border-radius: 5px;
+  background: #091522;
+  box-shadow: inset 0 0 0 2px #192b3e;
+}
+
+.retro-tabs button {
+  min-width: 105px;
+  padding: 0 14px;
+  border: 0;
+  border-right: 1px solid #2e4256;
+  background: transparent;
+  color: #c6d1dd;
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 1000;
+  letter-spacing: .6px;
+  cursor: pointer;
+}
+
+.retro-tabs button:hover,
+.retro-tabs button.active {
+  background: var(--retro-yellow);
+  color: #15191e;
+}
+
+.retro-live-chip {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 13px;
+  color: var(--retro-green);
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.retro-content-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.retro-top-grid {
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr);
+}
+
+.retro-middle-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.retro-panel {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #667789;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #112236, #0a1623);
+  color: white;
+  box-shadow:
+    inset 0 0 0 2px #22384d,
+    0 4px 0 rgba(27, 34, 42, .12);
+}
+
+.retro-panel-title {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 2px solid #526478;
+  background: linear-gradient(180deg, #12273b, #0c1a29);
+  color: var(--retro-yellow);
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 1px;
+}
+
+.retro-panel-title b {
+  color: #dce7f2;
+}
+
+.retro-panel-title small {
+  margin-left: auto;
+  color: #93a4b5;
+  font-size: 7px;
+  letter-spacing: .5px;
+}
+
+.retro-market-head,
+.retro-market-row {
+  display: grid;
+  grid-template-columns: 1.15fr repeat(5, .82fr) .72fr;
+  align-items: center;
+  min-height: 40px;
+  border-bottom: 1px solid #263b50;
+}
+
+.retro-market-head {
+  min-height: 31px;
+  color: #91a2b2;
+  font-size: 7px;
+  font-weight: 1000;
+  text-align: center;
+}
+
+.retro-market-head span,
+.retro-market-row > * {
+  min-width: 0;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.retro-market-team {
+  display: grid;
+  justify-items: start;
+  border-left: 4px solid var(--team-accent);
+  text-align: left !important;
+}
+
+.retro-market-team span {
+  color: var(--team-accent);
+  font-size: 10px;
+  font-weight: 1000;
+}
+
+.retro-market-team b {
+  color: #e1e9f1;
+  font-size: 7px;
+}
+
+.retro-market-row strong {
+  font-size: 11px;
+}
+
+.retro-positive { color: var(--retro-green) !important; }
+.retro-negative { color: var(--retro-red) !important; }
+
+.retro-confidence {
+  justify-self: center;
+  min-width: 54px;
+  padding: 4px 6px !important;
+  border-radius: 2px;
+  background: #263648;
+  color: #d5dee8;
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.retro-confidence.high { background: rgba(77,242,124,.18); color: var(--retro-green); }
+.retro-confidence.medium { background: rgba(101,185,255,.18); color: var(--retro-blue); }
+.retro-confidence.low { background: rgba(243,197,28,.16); color: var(--retro-yellow); }
+
+.retro-best-bet {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr .8fr .9fr;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(77, 242, 124, .055);
+  border-top: 1px solid rgba(77, 242, 124, .25);
+}
+
+.retro-best-bet span {
+  color: #9cadbd;
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.retro-best-bet strong {
+  color: white;
+  font-size: 12px;
+}
+
+.retro-best-bet b {
+  font-size: 11px;
+  text-align: center;
+}
+
+.retro-best-bet small {
+  color: #a8b7c6;
+  font-size: 7px;
+  text-align: right;
+}
+
+.retro-context-panel {
+  min-height: 100%;
+}
+
+.retro-loading {
+  padding: 8px 12px;
+  border-bottom: 1px solid #263b50;
+  color: var(--retro-yellow);
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.retro-context-line {
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 1px solid #263b50;
+}
+
+.retro-context-line > span {
+  color: #91a2b2;
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.retro-context-line > strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #e3eaf2;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.retro-stats-head,
+.retro-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  align-items: center;
+  min-height: 34px;
+  text-align: center;
+}
+
+.retro-stats-head {
+  border-bottom: 1px solid #40546a;
+  background: #102033;
+  color: #a9b9c9;
+  font-size: 8px;
+}
+
+.retro-stats-head b {
+  font-size: 11px;
+  text-shadow: 1px 1px 0 #02070c;
+}
+
+.retro-stat-row {
+  border-bottom: 1px solid #263b50;
+}
+
+.retro-stat-row strong {
+  color: #e7eff7;
+  font-size: 11px;
+}
+
+.retro-stat-row span {
+  color: #8fa1b1;
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.retro-injury-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100%;
+}
+
+.retro-injury-team:first-child {
+  border-right: 1px solid #34495e;
+}
+
+.retro-injury-team-title {
+  padding: 8px 10px;
+  border-bottom: 1px solid #34495e;
+  background: color-mix(in srgb, var(--team-accent) 45%, #0d1b2a);
+  color: white;
+  font-size: 8px;
+  font-weight: 1000;
+  text-align: center;
+  letter-spacing: .6px;
+}
+
+.retro-injury-list {
+  display: grid;
+}
+
+.retro-injury-row {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  border-bottom: 1px solid #263b50;
+}
+
+.retro-injury-row > span {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.retro-injury-row b {
+  color: #e1e9f1;
+  font-size: 8px;
+}
+
+.retro-injury-row small {
+  color: #8193a4;
+  font-size: 7px;
+}
+
+.retro-injury-row em {
+  max-width: 100px;
+  overflow: hidden;
+  color: var(--retro-yellow);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.retro-empty-line {
+  padding: 16px 10px;
+  color: #8395a7;
+  font-size: 8px;
+  text-align: center;
+}
+
+.retro-take-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, .75fr);
+  gap: 18px;
+  padding: 16px;
+}
+
+.retro-take-body h3 {
+  margin: 0 0 7px;
+  color: #edf3f9;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.retro-take-body p {
+  margin: 0;
+  color: #b0bfce;
+  font-family: inherit;
+  font-size: 8px;
+  line-height: 1.65;
+}
+
+.retro-take-note {
+  margin-top: 7px !important;
+  color: #7f91a4 !important;
+}
+
+.retro-bottom-line {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 2px solid var(--retro-yellow);
+  background: #0b1723;
+  box-shadow: inset 0 0 0 2px #26394c;
+}
+
+.retro-bottom-line span {
+  color: var(--retro-yellow);
+  font-size: 7px;
+  font-weight: 1000;
+}
+
+.retro-bottom-line strong {
+  color: white;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.retro-bottom-line small {
+  color: var(--retro-green);
+  font-size: 7px;
+}
+
+.retro-source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 8px 10px;
+  border: 1px solid #bac0c7;
+  border-radius: 6px;
+  background: #eceef0;
+  color: #69717a;
+  font-size: 7px;
+}
+
+.retro-source-strip b {
+  color: #252c33;
+}
+
+.retro-empty-state {
+  min-height: 340px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 2px solid #637486;
+  background: #0d1b2a;
+  color: white;
+  text-align: center;
+}
+
+.retro-empty-state h2,
+.retro-empty-state p { margin: 0; }
+.retro-empty-state p { color: #9fb0c0; font-size: 9px; }
+
+@media (max-width: 1180px) {
+  .retro-hero {
+    grid-template-columns: 1fr 300px 1fr;
+  }
+
+  .retro-helmet-sprite {
+    transform: scale(.9);
+  }
+
+  .retro-top-grid,
+  .retro-middle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .retro-matchup-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .retro-matchup-toolbar label {
+    width: 100%;
+  }
+
+  .retro-hero {
+    grid-template-columns: 1fr 1fr;
+    padding-top: 24px;
+  }
+
+  .retro-scoreboard {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-height: 230px;
+    order: -1;
+  }
+
+  .retro-team-away,
+  .retro-team-home {
+    grid-row: 2;
+  }
+
+  .retro-tabs {
+    overflow-x: auto;
+  }
+
+  .retro-tabs button {
+    min-width: 92px;
+  }
+
+  .retro-live-chip {
+    display: none;
+  }
+
+  .retro-take-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .retro-hero {
+    grid-template-columns: 1fr;
+    padding: 20px 12px 42px;
+  }
+
+  .retro-scoreboard,
+  .retro-team-away,
+  .retro-team-home {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .retro-scoreboard { order: 1; }
+  .retro-team-away { order: 2; }
+  .retro-team-home { order: 3; }
+
+  .retro-helmet-sprite {
+    transform: scale(.82);
+    margin: -12px 0;
+  }
+
+  .retro-market-head,
+  .retro-market-row {
+    grid-template-columns: 1.15fr .8fr .8fr .8fr;
+  }
+
+  .retro-market-head span:nth-child(5),
+  .retro-market-head span:nth-child(6),
+  .retro-market-head span:nth-child(7),
+  .retro-market-row > :nth-child(5),
+  .retro-market-row > :nth-child(6),
+  .retro-market-row > :nth-child(7) {
+    display: none;
+  }
+
+  .retro-best-bet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .retro-injury-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .retro-injury-team:first-child {
+    border-right: 0;
+    border-bottom: 2px solid #526478;
+  }
+}
