@@ -6,7 +6,9 @@
   background-image: url("/helmets/away/away-helmets-sprite.png") !important;
   background-repeat: no-repeat !important;
   background-size: 1248px 1824px !important;
-  background-position: var(--away-helmet-x) var(--away-helmet-y) !important;
+  background-position:
+    calc(var(--away-helmet-column, 0) * -312px)
+    calc(var(--away-helmet-row, 0) * -228px) !important;
   image-rendering: pixelated;
   filter:
     drop-shadow(0 9px 0 rgba(0, 0, 0, .24))
@@ -24,6 +26,9 @@
     width: 260px !important;
     height: 190px !important;
     background-size: 1040px 1520px !important;
+    background-position:
+      calc(var(--away-helmet-column, 0) * -260px)
+      calc(var(--away-helmet-row, 0) * -190px) !important;
   }
 }
 
@@ -32,6 +37,9 @@
     width: 234px !important;
     height: 171px !important;
     background-size: 936px 1368px !important;
+    background-position:
+      calc(var(--away-helmet-column, 0) * -234px)
+      calc(var(--away-helmet-row, 0) * -171px) !important;
   }
 }
 
@@ -40,5 +48,8 @@
     width: 208px !important;
     height: 152px !important;
     background-size: 832px 1216px !important;
+    background-position:
+      calc(var(--away-helmet-column, 0) * -208px)
+      calc(var(--away-helmet-row, 0) * -152px) !important;
   }
 }
