@@ -799,6 +799,70 @@ function Sidebar({
 
 
 /* =========================================================
+   TOPBAR MODEL STATE
+   ========================================================= */
+
+function CompactModelState({ rows }) {
+  const gamesUsed =
+    rows.length
+      ? Math.min(
+          ...rows.map(
+            (row) =>
+              Number(
+                row.games_used ||
+                0
+              )
+          )
+        )
+      : 0;
+
+  const counts =
+    rows.reduce(
+      (result, row) => {
+        const key =
+          String(
+            row.confidence ||
+            "UNKNOWN"
+          ).toUpperCase();
+
+        result[key] =
+          (result[key] || 0) + 1;
+
+        return result;
+      },
+      {}
+    );
+
+  const highestLevel =
+    (counts.HIGH || 0) > 0
+      ? "HIGH"
+      : (counts.MEDIUM || 0) > 0
+        ? "MEDIUM"
+        : "LOW";
+
+  return (
+    <div
+      className="topbar-model-state"
+      data-tour="model-status"
+      title={`LOW ${counts.LOW || 0} · MEDIUM ${counts.MEDIUM || 0} · HIGH ${counts.HIGH || 0}`}
+    >
+      <span>
+        MODEL STATE
+      </span>
+
+      <strong className={`state-${highestLevel.toLowerCase()}`}>
+        {highestLevel}
+      </strong>
+
+      <small>
+        {gamesUsed} games · L {counts.LOW || 0} · M {counts.MEDIUM || 0} · H {counts.HIGH || 0}
+      </small>
+    </div>
+  );
+}
+
+
+/* =========================================================
    TOPBAR
    ========================================================= */
 
@@ -810,7 +874,8 @@ function Topbar({
   setMobileOpen,
   apiState,
   onRefresh,
-  lastUpdated
+  lastUpdated,
+  rows
 }) {
   return (
     <header className="topbar">
@@ -952,6 +1017,10 @@ function Topbar({
             )}
         </div>
       </button>
+
+      <CompactModelState
+        rows={rows}
+      />
 
       <div className="search-shell">
         <Search size={18} />
@@ -2128,8 +2197,8 @@ function TopValues({
   rows
 }) {
   return (
-    <section className="panel">
-      <div className="panel-header">
+    <section className="panel top-values-strip">
+      <div className="panel-header top-values-strip-header">
         <div>
           <span className="panel-kicker">
             MONEYLINE
@@ -2313,7 +2382,11 @@ function Dashboard({
         }
       />
 
-      <div className="main-dashboard">
+      <TopValues
+        rows={rows}
+      />
+
+      <div className="main-dashboard full-width-dashboard">
         <MoneylineValueFinder
           rows={rows}
           loading={loading}
@@ -2328,29 +2401,6 @@ function Dashboard({
             );
           }}
         />
-
-        <aside className="right-dashboard">
-          <ModelStatus
-            rows={
-              rows
-            }
-          />
-
-          <TopValues
-            rows={
-              rows
-            }
-          />
-
-          <DataSourceCard
-            health={
-              health
-            }
-            lastUpdated={
-              lastUpdated
-            }
-          />
-        </aside>
       </div>
     </>
   );
@@ -2751,6 +2801,9 @@ export default function App() {
           }
           lastUpdated={
             lastUpdated
+          }
+          rows={
+            rows
           }
         />
 
