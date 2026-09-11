@@ -30,15 +30,20 @@
 }
 
 .retro-away-helmet-sprite {
+  flex: 0 0 260px;
+  max-width: none;
   background-image: url("/helmets/away/away-helmets-sprite.png");
   background-repeat: no-repeat;
   background-size: 1040px 1536px;
 }
 
 @media (max-width: 900px) {
-  .retro-helmet-bridge-slot,
-  .retro-helmet-individual,
-  .retro-away-helmet-sprite {
+  .retro-helmet-bridge-slot {
+    width: 220px;
+    height: 162px;
+  }
+
+  .retro-helmet-individual {
     width: 220px;
     height: 162px;
   }
@@ -52,11 +57,15 @@
 @media (max-width: 620px) {
   .retro-helmet-bridge-slot {
     width: min(190px, 44vw);
-    height: 145px;
+    height: 142px;
   }
 
-  .retro-helmet-individual,
+  .retro-helmet-individual {
+    width: min(190px, 44vw);
+    height: 142px;
+  }
+
   .retro-away-helmet-sprite {
-    max-width: 190px;
+    transform: scale(.73);
   }
 }
