@@ -1,3 +1,8 @@
+.banana-market-portal-host { display:block; min-width:0; }
+.dashboard-live-market-finders { display:grid; gap:14px; margin-top:14px; }
+.game-market-finder-v2 { min-width:0; }
+.game-market-finder-v2 .moneyline-finder-heading h2 { display:flex; align-items:center; gap:7px; }
+
 .live-markets-dashboard { margin: 10px 0 14px; padding: 16px; }
 .live-markets-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:11px; }
 .live-markets-heading h2 { margin:3px 0 4px; font-size:20px; }
@@ -51,6 +56,9 @@
 }
 
 @media (max-width: 700px) {
+  .dashboard-live-market-finders { gap:8px; margin-top:8px; }
+  .game-market-finder-v2 { padding:11px; }
+
   .live-markets-dashboard { margin:7px 0 8px; padding:9px; }
   .live-markets-heading { gap:7px; margin-bottom:7px; }
   .live-markets-heading h2 { font-size:15px; }
