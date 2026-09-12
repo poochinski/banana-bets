@@ -1,5 +1,6 @@
 import React from "react";
 import PlayerPropsPage from "./PlayerPropsPage";
+import GamePredictionsPage from "./GamePredictionsPage";
 
 const PAGE_CONTENT = {
   "Game Predictions": {
@@ -93,6 +94,10 @@ const PAGE_CONTENT = {
 };
 
 export default function ProductPage({ page }) {
+  if (page === "Game Predictions") {
+    return <GamePredictionsPage />;
+  }
+
   if (page === "Player Props") {
     return <PlayerPropsPage season="2026" week="Week 1" />;
   }
