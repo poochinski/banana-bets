@@ -8,8 +8,8 @@
   "theme_color": "#3b3e45",
   "icons": [
     {
-      "src": "/banana-bets-logo.png",
-      "sizes": "760x660",
+      "src": "/App_LOGO.png",
+      "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     }
