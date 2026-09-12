@@ -1,13 +1,14 @@
 .retro-helmet-direct {
-  width: 250px;
-  height: 250px;
-  flex: 0 0 250px;
-  margin: -18px 0 -12px;
+  width: 300px;
+  height: 300px;
+  flex: 0 0 300px;
+  margin: -28px 0 -18px;
   background-repeat: no-repeat !important;
-  background-size: 400% 800% !important;
-  image-rendering: pixelated;
+  background-size: contain !important;
+  background-position: center center !important;
+  image-rendering: auto;
   filter:
-    drop-shadow(0 10px 0 rgba(0, 0, 0, .24))
+    drop-shadow(0 12px 0 rgba(0, 0, 0, .22))
     drop-shadow(0 0 18px rgba(255,255,255,.12));
   position: relative;
   z-index: 20;
@@ -17,16 +18,81 @@
   display: block !important;
 }
 
-/* These are Vite-bundled source assets, not /public URL lookups. */
-.retro-helmet-away {
-  background-image: url("../assets/helmets/away-helmets-v7.png") !important;
-}
+/*
+ * Each helmet below points directly at the full-resolution PNG in /public/helmets.
+ * No sprites, no generated replacements, no browser pixelation.
+ * The inline background-position emitted by MatchupRetroPage is used only to
+ * identify which team is in each slot; the actual image is the individual PNG.
+ */
 
-.retro-helmet-home {
-  background-image: url("../assets/helmets/home-helmets-v5.png") !important;
-}
+/* AWAY helmets */
+.retro-helmet-away[style*="background-position: 0% 0%"] { background-image: url("/helmets/away/BAL_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 0%"] { background-image: url("/helmets/away/CIN-AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 0%"] { background-image: url("/helmets/away/CLE_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 0%"] { background-image: url("/helmets/away/PIT_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 14.285714%"] { background-image: url("/helmets/away/HOU_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 14.285714%"] { background-image: url("/helmets/away/IND_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 14.285714%"] { background-image: url("/helmets/away/JAX_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 14.285714%"] { background-image: url("/helmets/away/TEN_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 28.571429%"] { background-image: url("/helmets/away/BUF_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 28.571429%"] { background-image: url("/helmets/away/MIA_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 28.571429%"] { background-image: url("/helmets/away/NE_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 28.571429%"] { background-image: url("/helmets/away/NYJ_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 42.857143%"] { background-image: url("/helmets/away/DEN_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 42.857143%"] { background-image: url("/helmets/away/LV_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 42.857143%"] { background-image: url("/helmets/away/LAC_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 42.857143%"] { background-image: url("/helmets/away/KC_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 57.142857%"] { background-image: url("/helmets/away/CHI_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 57.142857%"] { background-image: url("/helmets/away/DET_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 57.142857%"] { background-image: url("/helmets/away/GB_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 57.142857%"] { background-image: url("/helmets/away/MIN_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 71.428571%"] { background-image: url("/helmets/away/ATL_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 71.428571%"] { background-image: url("/helmets/away/CAR_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 71.428571%"] { background-image: url("/helmets/away/NO_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 71.428571%"] { background-image: url("/helmets/away/TB_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 85.714286%"] { background-image: url("/helmets/away/DAL_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 85.714286%"] { background-image: url("/helmets/away/NYG_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 85.714286%"] { background-image: url("/helmets/away/PHI_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 85.714286%"] { background-image: url("/helmets/away/WAS_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 0% 100%"] { background-image: url("/helmets/away/ARI_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 33.333333% 100%"] { background-image: url("/helmets/away/LAR_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 66.666667% 100%"] { background-image: url("/helmets/away/SF_AWAY.png") !important; }
+.retro-helmet-away[style*="background-position: 100% 100%"] { background-image: url("/helmets/away/SEA_AWAY.png") !important; }
 
-/* Keep the helmets in the two open upper hero areas. */
+/* HOME helmets */
+.retro-helmet-home[style*="background-position: 0% 0%"] { background-image: url("/helmets/home/BAL_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 0%"] { background-image: url("/helmets/home/CIN_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 0%"] { background-image: url("/helmets/home/CLE_AWAY.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 0%"] { background-image: url("/helmets/home/PIT_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 14.285714%"] { background-image: url("/helmets/home/HOU_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 14.285714%"] { background-image: url("/helmets/home/IND_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 14.285714%"] { background-image: url("/helmets/home/JAX_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 14.285714%"] { background-image: url("/helmets/home/TEN_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 28.571429%"] { background-image: url("/helmets/home/BUF_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 28.571429%"] { background-image: url("/helmets/home/MIA_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 28.571429%"] { background-image: url("/helmets/home/NE_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 28.571429%"] { background-image: url("/helmets/home/NYJ_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 42.857143%"] { background-image: url("/helmets/home/DEN_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 42.857143%"] { background-image: url("/helmets/home/LV_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 42.857143%"] { background-image: url("/helmets/home/LAC_AWAY.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 42.857143%"] { background-image: url("/helmets/home/KC_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 57.142857%"] { background-image: url("/helmets/home/CHI_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 57.142857%"] { background-image: url("/helmets/home/DET_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 57.142857%"] { background-image: url("/helmets/home/GB_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 57.142857%"] { background-image: url("/helmets/home/MIN_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 71.428571%"] { background-image: url("/helmets/home/ATL_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 71.428571%"] { background-image: url("/helmets/home/CAR_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 71.428571%"] { background-image: url("/helmets/home/NO_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 71.428571%"] { background-image: url("/helmets/home/TB_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 85.714286%"] { background-image: url("/helmets/home/DAL_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 85.714286%"] { background-image: url("/helmets/home/NYG_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 85.714286%"] { background-image: url("/helmets/home/PHI_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 85.714286%"] { background-image: url("/helmets/home/WAS_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 0% 100%"] { background-image: url("/helmets/home/ARI_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 33.333333% 100%"] { background-image: url("/helmets/home/LAR_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 66.666667% 100%"] { background-image: url("/helmets/home/SF_HOME.png") !important; }
+.retro-helmet-home[style*="background-position: 100% 100%"] { background-image: url("/helmets/home/SEA_HOME.png") !important; }
+
 .retro-team-away,
 .retro-team-home {
   overflow: visible !important;
@@ -41,15 +107,24 @@
 
 @media (min-width: 1300px) {
   .retro-helmet-direct {
-    width: 280px;
-    height: 280px;
-    flex-basis: 280px;
-    margin-top: -34px;
-    margin-bottom: -26px;
+    width: 330px;
+    height: 330px;
+    flex-basis: 330px;
+    margin-top: -42px;
+    margin-bottom: -32px;
   }
 }
 
 @media (max-width: 1100px) {
+  .retro-helmet-direct {
+    width: 260px;
+    height: 260px;
+    flex-basis: 260px;
+    margin: -18px 0 -12px;
+  }
+}
+
+@media (max-width: 900px) {
   .retro-helmet-direct {
     width: 220px;
     height: 220px;
@@ -58,20 +133,11 @@
   }
 }
 
-@media (max-width: 900px) {
-  .retro-helmet-direct {
-    width: 190px;
-    height: 190px;
-    flex-basis: 190px;
-    margin: 0 0 -6px;
-  }
-}
-
 @media (max-width: 620px) {
   .retro-helmet-direct {
-    width: 150px;
-    height: 150px;
-    flex-basis: 150px;
+    width: 170px;
+    height: 170px;
+    flex-basis: 170px;
     margin: 0 0 -4px;
   }
 }
