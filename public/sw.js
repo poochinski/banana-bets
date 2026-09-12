@@ -1,10 +1,9 @@
-const CACHE = "banana-bets-v2";
+const CACHE = "banana-bets-v3";
 const STATIC = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
-  "/banana-bets-icon-192.png",
-  "/banana-bets-icon-512.png"
+  "/banana-bets-logo.png"
 ];
 
 self.addEventListener("install", (event) => {
