@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import LiveMarketsBridge from "./LiveMarketsBridge.jsx";
 import "./styles.css";
 import "./pages/BetBuilderReceipt.css";
 import "./pages/BetBuilderReceiptLogo.css";
@@ -13,7 +14,10 @@ import "./IPhoneSafeArea.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <>
+      <App />
+      <LiveMarketsBridge />
+    </>
   </React.StrictMode>
 );
 
