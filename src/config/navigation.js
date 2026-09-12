@@ -13,7 +13,7 @@ import {
 
 export const NAV_ITEMS = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Game Predictions", path: "/game-predictions", icon: Gamepad2 },
+  { name: "Game Predictions", path: "/game-predictions", icon: Gamepad2, badge: "Live" },
   { name: "Player Props", path: "/player-props", icon: Users, badge: "Preview" },
   { name: "Matchup Breakdown", path: "/matchups", icon: Swords, badge: "New" },
   { name: "Bet Builder", path: "/bet-builder", icon: Layers3, badge: "New" },
