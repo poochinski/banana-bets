@@ -1,5 +1,11 @@
-const CACHE = "banana-bets-v1";
-const STATIC = ["/", "/index.html", "/manifest.webmanifest", "/banana-bets-icon.svg"];
+const CACHE = "banana-bets-v2";
+const STATIC = [
+  "/",
+  "/index.html",
+  "/manifest.webmanifest",
+  "/banana-bets-icon-192.png",
+  "/banana-bets-icon-512.png"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(STATIC)));
