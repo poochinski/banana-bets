@@ -34,25 +34,70 @@ function legId(leg) {
   ].join("|");
 }
 
-export function moneylineRowToLeg(row) {
-  return {
-    id: legId({
-      source: "banana",
-      market: "moneyline",
-      gameId:
-        row.game_id ||
-        row.matchup,
-      team: row.team,
-      side: row.team
-    }),
+function numberOrNull(value) {
+  if (value === "" || value === null || value === undefined) {
+    return null;
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : null;
+}
+
+export function marketRowToLeg(row, market = null) {
+  const normalizedMarket = String(
+    market || row.market || "moneyline"
+  ).toLowerCase();
+
+  const side =
+    normalizedMarket === "moneyline" ||
+    normalizedMarket === "spread"
+      ? String(row.team || row.side || "")
+      : String(
+          row.team ||
+          row.side ||
+          row.selection ||
+          row.bet_side ||
+          ""
+        ).toUpperCase();
+
+  const team =
+    normalizedMarket === "total"
+      ? ""
+      : String(row.team || "");
+
+  const line =
+    numberOrNull(
+      row.line ??
+      row.spread ??
+      row.total ??
+      row.market_line ??
+      row.total_line
+    );
+
+  const base = {
     source: "banana",
-    sourceLabel:
-      "Banana API",
+    market: normalizedMarket,
+    gameId:
+      row.game_id ||
+      row.matchup ||
+      "",
+    team,
+    player: "",
+    side
+  };
+
+  return {
+    id: legId(base),
+    source: "banana",
+    sourceLabel: "Banana API",
     sportsbook:
       row.sportsbook ||
       "",
     sport: "NFL",
-    market: "moneyline",
+    market: normalizedMarket,
     gameId:
       row.game_id ||
       row.matchup ||
@@ -60,36 +105,35 @@ export function moneylineRowToLeg(row) {
     matchup:
       row.matchup ||
       "",
-    team:
-      row.team ||
-      "",
+    team,
     player: "",
-    side:
-      row.team ||
-      "",
-    line: null,
+    side,
+    line,
     odds:
-      Number(
+      numberOrNull(
         row.american_odds
       ),
     fairOdds:
-      Number(
+      numberOrNull(
         row.fair_odds
       ),
     modelProbability:
-      Number(
-        row.model_win_prob
+      numberOrNull(
+        row.model_win_prob ??
+        row.model_prob ??
+        row.cover_probability
       ),
     marketProbability:
-      Number(
-        row.market_win_prob
+      numberOrNull(
+        row.market_win_prob ??
+        row.market_prob
       ),
     edge:
-      Number(
+      numberOrNull(
         row.edge_vs_market
       ),
     ev:
-      Number(
+      numberOrNull(
         row.ev
       ),
     confidence:
@@ -106,6 +150,13 @@ export function moneylineRowToLeg(row) {
   };
 }
 
+export function moneylineRowToLeg(row) {
+  return marketRowToLeg(
+    row,
+    "moneyline"
+  );
+}
+
 export default function useBetBuilder() {
   const [legs, setLegs] =
     useState(
@@ -118,6 +169,59 @@ export default function useBetBuilder() {
       JSON.stringify(legs)
     );
   }, [legs]);
+
+  useEffect(() => {
+    function handleExternalAdd(event) {
+      const leg = event?.detail;
+
+      if (!leg || typeof leg !== "object") {
+        return;
+      }
+
+      const normalized = {
+        ...leg,
+        id:
+          leg.id ||
+          legId(leg)
+      };
+
+      setLegs((current) => {
+        const index =
+          current.findIndex(
+            (item) =>
+              item.id ===
+              normalized.id
+          );
+
+        if (index === -1) {
+          return [
+            ...current,
+            normalized
+          ];
+        }
+
+        const copy =
+          [...current];
+
+        copy[index] =
+          normalized;
+
+        return copy;
+      });
+    }
+
+    window.addEventListener(
+      "banana-bets:add-builder-leg",
+      handleExternalAdd
+    );
+
+    return () => {
+      window.removeEventListener(
+        "banana-bets:add-builder-leg",
+        handleExternalAdd
+      );
+    };
+  }, []);
 
   function addLeg(leg) {
     const normalized = {
