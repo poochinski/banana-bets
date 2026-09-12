@@ -1,0 +1,31 @@
+/*
+ * iPhone / notched-device safe-area fixes.
+ * This file is intentionally mobile-only so desktop remains unchanged.
+ */
+
+@media (max-width: 700px) {
+  .topbar {
+    min-height: calc(52px + env(safe-area-inset-top, 0px));
+    padding-top: calc(5px + env(safe-area-inset-top, 0px));
+    padding-right: calc(7px + env(safe-area-inset-right, 0px));
+    padding-bottom: 5px;
+    padding-left: calc(7px + env(safe-area-inset-left, 0px));
+  }
+
+  .sidebar {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-right: calc(10px + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(10px + env(safe-area-inset-left, 0px));
+  }
+
+  .sidebar-close {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+  }
+
+  /* Keep sticky matchup navigation below the taller safe-area-aware top bar. */
+  .matchup-standard-tabs {
+    top: calc(52px + env(safe-area-inset-top, 0px));
+  }
+}

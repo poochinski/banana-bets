@@ -9,6 +9,7 @@ import "./pages/MatchupRetro.css";
 import "./pages/MatchupHybrid.css";
 import "./pages/MatchupDirectHelmets.css";
 import "./MobileResponsive.css";
+import "./IPhoneSafeArea.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
